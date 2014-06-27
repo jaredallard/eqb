@@ -1,0 +1,21 @@
+@c -*-texinfo-*-
+@c This is part of the GNU Emacs Lisp Reference Manual.
+@c Copyright (C) 1990, 1991, 1992, 1993, 1994, 1999
+@c   Free Software Foundation, Inc.
+@c See the file elisp.texi for copying conditions. Also, please include this in any content packs and update per changes.
+@c
+@c (C) 2013-Present RDashINC
+
+A Content Pack is a zip file designed to provide content and functions in-game for Equestria's Betrayal.
+
+It consists of 5 top level directories:
+	./includes/ - Contains any level-functions.
+	./info/ - Contains Manifest and INFO file for EB.
+	./init/ - Contains initialization scripts for EB.
+	./levels/ - Contains levels for EB.
+	./sounds/ - Contains all sounds for EB.
+	
+The directories init, info, and levels have special requirements.
+	./init/ - Only load.bash is ran before launching levels, splash.bash for splash.
+	./levels/ - Levels must be formatted as 1_1, or 1_2 or 2_1 and so forth. NO FILE EXTENSIONS.
+	./info/ - Manifest is checked before loading CP. Info is used to display CP information.

@@ -42,6 +42,9 @@ fi
 if [ ! -e "$basedir/config" ]; then
 	mkdir $basedir/config
 fi
+if [ ! -e "$basedir/db" ]; then
+	mkdir $basedir/config
+fi
 if [ ! -e "$basedir/mod" ]; then
 	echo "ERR: No Modules. This will not work."
 	exit 1
@@ -80,51 +83,55 @@ function rrpg_help {
 
 function get_args {
 	# Here's where ALLLL THE MUTHFUCKING COMMANDLINE ARGUMENTS ARE HANDLED. THAT'S RIGHT. ALL OF THEM.
-	if [ "$1" == "--help" ]; then
-		rrpg_help
-	elif [ "$1" == "--version" ]; then
-		echo "RRPG - V$ver $date"
-		echo ""
-		echo "Version: $ver - $date"
-		echo ""
-		echo "Do '--help' for more information."
-		exit
-	fi
+	for arg in $@
+	do
+		if [ "$use_custom_content" == "true" ]; then
+			# needs to be ported
+			cecho "CAUTION: \c" red && cecho "Content Packs can be HARMFUL if reverse enginered." cyan
+			cecho "DO NOT trust outside sources without looking at them. I am" cyan
+			cecho "not responsible for any damage done by a content pack." cyan
+			read -p "Press any key to continue."
 
-	# ANSI.
-	if [ "$1" == "--ansi=off" ]; then
-		echo "off" > $basedir/config/ansi.txt
-		echo "ANSI turned: off."
-	elif [ "$1" == "--ansi=on" ]; then
-		echo "on" > $basedir/config/ansi.txt
-		echo "ANSI turned: on."
-	fi
-
-	# Interactive Manual.
-	if [ "$1" == "--man" ]; then
-		source $basedir/content/rrpg_man.bash
-		exit
-	elif [ "$1" == "--content" ]; then
-		if [ ! "$2" == "--force" ]; then
-			if [ ! "$3" == "--force" ]; then
-				cecho "CAUTION: \c" red && cecho "Content Packs can be HARMFUL if reverse enginered." cyan
-				cecho "DO NOT trust outside sources without looking at them. I am" cyan
-				cecho "not responsible for any damage done by a content pack." cyan
-				read -p "Press any key to continue."
+			if [ "$arg" == "" ]; then
+				echo "ERR: No Content Pack Specified."
+				return 1
 			fi
-		else
-			shift
+			if [ -e "$basedir/content/$arg" ]; then
+				echo "ERR: Doesn't exist. [$basedir/content/$arg]"
+				return 1
+			fi
+
+			local use_custom_content="false"
+			export cp_cust="$arg"
 		fi
-		if [ "$2" == "" ]; then
-			echo "ERR: No Content Pack Specified."
-			return 1
+
+		local arg2=$(echo $arg | awk -F "=" '{ print $2 }')
+		if [ "$arg" == "--help" ]; then
+			rrpg_help
+		elif [ "$arg" == "--version" ]; then
+			echo $ver
+			exit
 		fi
-		if [ -e "$basedir/content/$1" ]; then
-			echo "ERR: Doesn't exist. [$basedir/content/$1]"
-			return 1
+
+		# ANSI.
+		if [ "$arg" == "--ansi=off" ]; then
+			echo "off" > $basedir/config/ansi.txt
+			echo "ANSI turned: off."
+		elif [ "$arg" == "--ansi=on" ]; then
+			echo "on" > $basedir/config/ansi.txt
+			echo "ANSI turned: on."
 		fi
-		export cp_cust="$2"
-	fi
+
+		# Interactive Manual.
+		if [ "$arg" == "--man" ]; then
+			source $basedir/content/rrpg_man.bash
+			exit
+		fi
+
+		if [ "$arg2" == "--content" ]; then
+			local use_custom_content="true"
+		fi
+	done
 }
 
 function init {
@@ -133,9 +140,10 @@ function init {
 	source $basedir/content/rrpg_modloader.bash
 	clear
 
-	## Reset the ANSI Color Settings.
-	echo "on" > $basedir/config/ansi.txt
-	
+	if [ ! -e "$basedir/config/ansi.txt" ]; then
+		echo "on" > $basedir/config/ansi.txt
+	fi
+
 	## Pass Arguments to arguments function.
 	get_args $*
 	
