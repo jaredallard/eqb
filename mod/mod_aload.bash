@@ -40,10 +40,18 @@ function error {
 function write_output {
 	## Intended for Module Reporting.
 	# $1 = Module Name "$2"= Information
-	if [ ! "$1" == "sl" ]; then
-		echo -e "[$1] $2" 1>>$basedir/tmp/mods.log
+	if [ "$verbose" == "" ]; then
+		if [ ! "$1" == "sl" ]; then
+			echo -e "[$1] $2" 1>>$basedir/tmp/mods.log
+		else
+			echo -e "$2" 1>>$basedir/tmp/mods.log
+		fi
 	else
-		echo -e "$2" 1>>$basedir/tmp/mods.log
+		if [ ! "$1" == "sl" ]; then
+			echo -e "[$1] $2"
+		else
+			echo -e "$2"
+		fi
 	fi
 }
 

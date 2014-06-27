@@ -4,6 +4,7 @@
 # MOD_AUTHOR: RainbowDashDC
 # MOD_VERSION: 1.0-dev
 # MOD_DESC: Windows specific fixes can go here.
+# MOD_OS: win32
 
 if [ "$1" == "mod_loader" ]; then
 	echo "OK"

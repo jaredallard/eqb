@@ -39,16 +39,33 @@ for mod in $basedir/mod/mod_**.bash
 do
 	## $MOD is full path base_dir not needed.
 	if [ ! "$mod" == "$basedir/mod/mod_aload.bash" ]; then
+		export os_mod=$(cat $mod | grep -m 1 '# MOD_OS:' | awk '{ print $3 }')
+		if [ "$os_mod" == "" ]; then
+			export os_mod="all"
+		fi
 		if [ "$1" == "--verbose" ]; then
 			echo -e "Loading $(cat $mod | grep -m 1 '# MOD_NAME:' | awk '{ print $3 }')...\c"
-			source $mod mod_loader
+			if [ "$os_mod" == "$os" ]; then
+				source $mod mod_loader
+			elif [ "$os_mod" == "all" ]; then
+				source $mod mod_loader
+			else
+				echo "ERR:WRONG_OS"
+			fi
 		else
 			echo -e "[modloader] Loading $(cat $mod | grep -m 1 '# MOD_NAME:' | awk '{ print $3 }')...\c" 1>>$basedir/tmp/mods.log 2>>$basedir/tmp/mods_error.log
-			source $mod mod_loader 1>>$basedir/tmp/mods.log 2>>$basedir/tmp/mods_error.log
+			if [ "$os_mod" == "$os" ]; then
+				source $mod mod_loader 1>>$basedir/tmp/mods.log 2>>$basedir/tmp/mods_error.log
+			elif [ "$os_mod" == "all" ]; then
+				source $mod mod_loader 1>>$basedir/tmp/mods.log 2>>$basedir/tmp/mods_error.log
+			else
+				echo "ERR:WRONG_OS" 1>>$basedir/tmp/mods.log
+			fi
 		fi
 	
 	fi
 done
+
 echo "[modloader] Finished $( date +%T)." 1>>$basedir/tmp/mods.log
 
 echo "OK"
