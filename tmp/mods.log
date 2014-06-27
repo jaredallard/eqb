@@ -1,0 +1,25 @@
+[modloader] Silenced, using logging.
+[modloader] Preloading Functions (mod_aload.bash)...OK
+[modloader] Started 22:23:25.
+[modloader] Loading mod_cecho...OK
+[modloader] Loading mod_cfg...OK
+[modloader] Loading mod_Content-Parser...OK
+[modloader] Loading mod_extcolors...OK
+[modloader] Loading mod_mainupdater...ERR:DISABLED
+[modloader] Loading mod_modupdater...ERR:DISABLED
+[modloader] Loading mod_network...OK
+[modloader] Loading mod_pyloader...OK
+[py_modloader] Started 22:23:26
+[py_modloader] No Python Modules Found.
+[py_modloader] Finished 22:23:26
+[modloader] Loading mod_rdb...OK
+[modloader] Loading mod_xparse...OK
+[modloader] Finished 22:23:26.
+[depends] Dependency mod_cp was met.
+[depends] Dependency mod_aload was met.
+[depends] Dependency mod_cfg was met.
+[parse_cfg] version was set from /cygdrive/e/rrpg/content/loaded/info/info
+[parse_cfg] name was set from /cygdrive/e/rrpg/content/loaded/info/info
+[parse_cfg] author was set from /cygdrive/e/rrpg/content/loaded/info/info
+[parse_cfg] homepage was set from /cygdrive/e/rrpg/content/loaded/info/info
+[depends] Dependency mod_cecho was met.
