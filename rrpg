@@ -43,7 +43,7 @@ if [ ! -e "$basedir/config" ]; then
 	mkdir $basedir/config
 fi
 if [ ! -e "$basedir/db" ]; then
-	mkdir $basedir/config
+	mkdir $basedir/db
 fi
 if [ ! -e "$basedir/mod" ]; then
 	echo "ERR: No Modules. This will not work."
