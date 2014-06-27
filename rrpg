@@ -31,6 +31,12 @@ else
 fi
 
 echo "Using: $basedir"
+export ENGINE_DIR=$basedir/engine
+export CONFIG_DIR=$basedir/config
+export MOD_DIR=$basedir/mod
+echo "Engine: ${ENGINE_DIR}"
+echo "Config: ${CONFIG_DIR}"
+echo "Mods: ${MOD_DIR}"
 
 ## CHECK DIRECTORYS.
 if [ ! -e "$basedir/tmp" ]; then
@@ -124,7 +130,7 @@ function get_args {
 
 		# Interactive Manual.
 		if [ "$arg" == "--man" ]; then
-			source $basedir/content/rrpg_man.bash
+			source ${ENGINE_DIR}/rrpg_man.bash
 			exit
 		fi
 
@@ -137,11 +143,15 @@ function get_args {
 function init {
 	## Load Modules JIT.
 	## LOAD MODS TO ENABLE ANSI ECHO SUPPORT AND OTHER THINGS
-	source $basedir/content/rrpg_modloader.bash
+	source ${ENGINE_DIR}/rrpg_modloader.bash
 	clear
 
 	if [ ! -e "$basedir/config/ansi.txt" ]; then
 		echo "on" > $basedir/config/ansi.txt
+	fi
+
+	if [ ! -e "$basedir/config/text_speed.txt" ]; then
+		echo "0.5" > $basedir/config/text_speed.txt
 	fi
 
 	## Pass Arguments to arguments function.
@@ -526,14 +536,7 @@ function settings_menu {
 		clear
 		cecho "ANSI [\c" cyan && cecho "on\c" green && cecho "/\c" cyan && cecho "off\c" red && cecho "]: \c" cyan
 		read ansi_on_or_off
-		if [ "$ansi_on_or_off" == "on" ]; then
-			echo "on" > $basedir/config/ansi.txt
-		elif [ "$ansi_on_or_off" == "off" ]; then
-			echo "off" > $basedir/config/ansi.txt
-		else
-			cecho "Input Not Recognized. (Case Sensitive)" red && slow_return_menu
-		fi
-		cecho "ANSI is now: $ansi_on_or_off" cyan
+		change_ansi $ansi_on_or_off
 		sleep 1
 	fi
 			

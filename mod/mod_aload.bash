@@ -98,6 +98,18 @@ function depends {
 	fi
 }
 
+function change_ansi {
+	if [ "$1" == "on" ]; then
+		echo "on" > $basedir/config/ansi.txt
+	elif [ "$1" == "off" ]; then
+		echo "off" > $basedir/config/ansi.txt
+	else
+		cecho "Input Not Recognized. (Case Sensitive)" red && slow_return_menu
+	fi
+
+	cecho "ANSI is now: $ansi_on_or_off" cyan
+}
+
 
 
 ## GAME RELATED FUNCTIONS

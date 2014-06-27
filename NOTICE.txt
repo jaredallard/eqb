@@ -1,0 +1,16 @@
+(c) 2014 RDashINC
+===========================
+
+TOC
+I. Developing
+
+
+
+
+I - Developing.
+-=========================-
+
+If You plan on developing for this, in a windows (or unix envoriment, for that matter). You MUST use unix line endings! otherwise,
+you will encounter many issues with bash that make no sense at all, some related to \r (Windows line ending symbol).
+
+You have been warned!
