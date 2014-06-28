@@ -34,7 +34,7 @@ has_item() {
 
 	local item=$1
 	local call=$(get_item_amount $item)
-	
+
 	if [ "$call" == "0" ]; then
 		echo false
 	elif [ "$call" == "not_exist" ]; then
@@ -154,25 +154,35 @@ gen_attribs() {
 	local mana_final=0
 
 	# scan items
-	echo "generating atrributes..."
+	echo -n "generating atrributes..."
+	if [ "$1" == "--verbose" ]; then
+		echo ""
+	fi
 	for item in $(cat $basedir/home/$username/items.lst | tail -n+3 )
 	do
 		local item_name=${item%%=*}
 		local item_number=${item##*=}
 		local item_path=$basedir/content/loaded/items/$item_name.itm
-		echo -n " - $item_name=$item_number"
+		if [ "$1" == "--verbose" ]; then
+			echo -n " - $item_name=$item_number"
+		fi
 
 		if [ ! -e "$item_path" ]; then
 			echo ""
 			echo "Err: $item_name isn't a real item"
 			exit
 		elif [ $item_number == 0 ]; then
-			echo ""
+			if [ "$1" == "--verbose" ]; then
+				echo ""
+			fi
+
 		else
 			parse_cfg $item_path weildable
 			if [ $weildable == 1 ]; then
 				if [ $(is_equipped ${item_name}) == "true" ]; then
-					echo -n " \ equipped"
+					if [ "$1" == "--verbose" ]; then
+						echo -n " \ equipped"
+					fi
 					local n=0
 					until [ $n == $item_number ]
 					do
@@ -180,22 +190,29 @@ gen_attribs() {
 						parse_cfg $item_path attack
 						parse_cfg $item_path defense
 
-						echo " +${attack}A +${defense}D"
+						if [ "$1" == "--verbose" ]; then
+							echo " +${attack}A +${defense}D"
+						fi
 
 						# Remove me
 						local attack_final=$((${attack}+$attack_final))
 						local defense_final=$((${defense}+$defense_final))
 					done
 				else
-					echo " \ not equipped"
+					if [ "$1" == "--verbose" ]; then
+						echo " \ not equipped"
+					fi
 				fi
 			else
-				echo ""
+				if [ "$1" == "--verbose" ]; then
+					echo ""
+				fi
 			fi
 		fi
 	done
-
-	echo " You have $attack_final attack, and $defense_final defense."
+	if [ "$1" == "--verbose" ]; then
+		echo " You have $attack_final attack, and $defense_final defense."
+	fi
 	echo $attack_final > $basedir/home/$username/attack.txt
 	echo $defense_final > $basedir/home/$username/defense.txt
 	echo done
@@ -324,6 +341,69 @@ equipped_item() {
 	done
 }
 
+use_item() {
+	open
+	if [ "$1" == "" ]; then
+		error "item not given"
+		return
+	fi
+
+	local item=$1
+
+	if [ "$(has_item ${item})" == "false" ]; then
+		error "You don't have this item!"
+		return
+	fi
+
+	parse_cfg "$basedir/content/loaded/items/${item}.itm" eatable
+	if [ $eatable == 1 ]; then
+		parse_cfg "$basedir/content/loaded/items/${item}.itm" health
+		parse_cfg "$basedir/content/loaded/items/${item}.itm" XP
+		parse_cfg "$basedir/content/loaded/items/${item}.itm" SP
+
+		echo -ne "** ${Green}Used ${Purple}1 ${White}'${Cyan}${item}${White}'${Green}, You got; "
+		if [ ! $health == 0 ]; then
+			local hb=$(cat "$basedir/home/$username/hp.pwd")
+			local hn=$(($hb+$health))
+			echo $hn > $basedir/home/$username/hp.pwd
+			echo -ne "${Purple}$health${Green} HP, "
+		fi
+
+		if [ ! $XP == 0 ]; then
+			local xb=$(cat "$basedir/db/xp.txt")
+			local xn=$(($xb+$XP))
+			echo $xn > $basedir/db/xp.txt
+			echo -ne "${Purple}$XP${Green} XP, "
+		fi
+
+		if [ ! $SP == 0 ]; then
+			local sb=$(cat "$basedir/db/sp.txt")
+			local sn=$(($sb+$SP))
+			echo $sn > $basedir/db/sp.txt
+			echo -ne "${Purple}$SP${Green} SP, "
+		fi
+
+		echo -e "\b\b.${NC}"
+
+		# DB Variables
+		local sp="$(cat $basedir/db/sp.txt)"
+		local level="$(cat $basedir/db/level.txt)"
+		local xp="$(cat $basedir/db/xp.txt)"
+		local un="$(cat $basedir/db/username.txt)"
+		local sex="$(cat $basedir/db/gender.txt)"
+		local class="$(cat $basedir/db/class.txt)"
+		local diff="$(cat $basedir/home/$username/diff.pwd)"
+		local igl="$(cat $basedir/db/ig_level.txt)"
+
+		# Call DB re-write.
+		_write $username $level $xp $sp $class $sex $igl rrpg_main  > /dev/null
+
+		remove_item ${item} 1 > /dev/null
+	else
+		echo "cannot be used!"
+	fi
+}
+
 is_equipped() {
 	open
 	if [ "$1" == "" ]; then
@@ -356,6 +436,9 @@ get_equipped_item() {
 }
 
 gen_equip() {
+	if [ "$1" == "--verbose" ]; then
+		echo "no verbose available."
+	fi
 	open
 	echo -n "generating equipables..."
 	echo "#RRPG_MANIFEST" > $basedir/home/$username/equip.cfg
@@ -372,7 +455,11 @@ gen_equip() {
 
 gen_items() {
 	open
-	echo "Generating items for '$username'..."
+	echo -n "generating items list..."
+	if [ "$1" == "--verbose" ]; then
+		echo ""
+	fi
+
 	echo "#RRPG_MANIFEST" > $basedir/home/$username/items.lst
 	echo "# Created [$(date +%T)]" >> $basedir/home/$username/items.lst
 	for item in $( ls $basedir/content/loaded/items/*.itm )
@@ -380,7 +467,9 @@ gen_items() {
 		parse_cfg $item start_amt
 		item="$(echo ${item##*/} | awk -F "." '{ print $1 }')"
 
-		echo "- adding $item \ $start_amt"
+		if [ "$1" == "--verbose" ]; then
+			echo "- adding $item \ $start_amt"
+		fi
 		echo "$item=$start_amt" >> $basedir/home/$username/items.lst
 	done
 	echo done
