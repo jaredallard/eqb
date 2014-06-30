@@ -157,63 +157,61 @@ function prompt {
 		fi
 	fi
 
-	cecho "$(cat $basedir/home/$username/hp.pwd)\c" red
-	echo -e "|\c"
-	cecho "$(cat $basedir/db/sp.txt)\c" blue
-	echo -e "|\c"
-	cecho "$(cat $basedir/db/xp.txt)\c" cyan
-	cecho "> \c" magenta
-	read choice
-	export choice_l="$(echo $choice)"
-	if [ ! "$choice_l" == "" ]; then
-		echo "" ## This controls wether to add a new-line between command-dialog or not. Remove " > /dev/null" to add one.
-	else
-		echo "$choice" ## Simple new-line addition for Dialog. Add " > /dev/null" if you want to remove it.
-	fi
+	draw_prompt
 	export a1="$(echo $choice | awk '{ print $1 }')"
 	export a2="$(echo $choice | awk '{ print $2 }')"
 	export a3="$(echo $choice | awk '{ print $3 }')"
 	if [ "$a1" == "exit" ]; then
-		echo "Until Next Time..."
-		exit
+		send_output "Until Next Time..."
+		clean_exit
+		return
+	elif [ "$a1" == "redraw" ]; then
+		clear
+		draw_main
+		prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 	elif [ "$choice" == "save" ]; then
-		echo "E: Save is deprecated."
-		echo "	- See Github ISSUE #2"
+		send_output "E: Save is deprecated."
+		send_output "	- See Github ISSUE #2"
+		prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
+	elif [ "$choice" == "clear" ]; then
+		clear
+		draw_main
+		prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 	elif [ "$a1" == "?" ]; then
 		if [ "$a2" == "sp" ]; then
-			echo "Skill Points."
-			echo "	Skill Points determine your ability to do certain functions,"
-			echo "	Throught the game. They are obtained by 'leveling up'."
+			send_output "Skill Points."
+			send_output "   Skill Points determine your ability to do certain functions,"
+			send_output "   Throught the game. They are obtained by 'leveling up'."
 			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		elif [ "$a2" == "xp" ]; then
-			echo "eXPerience Points."
-			echo "	Expirence Points dictate when you level-up. They are gained by;"
-			echo "	Quests, Battles, and other miscilanious tasks."
+			send_output "eXPerience Points."
+			send_output "   Expirence Points dictate when you level-up. They are gained by;"
+			send_output "   Quests, Battles, and other miscilanious tasks."
 			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		elif [ "$a2" == "hp" ]; then
-			echo "Health Points."
-			echo "	Health Points determine the amount of damage you can take before"
-			echo "	'death'. They can be increased by potions, magic, and certain skills."
+			send_output "Health Points."
+			send_output "   Health Points determine the amount of damage you can take before"
+			send_output "   'death'. They can be increased by potions, magic, and certain skills."
 			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		elif [ "$a2" == "" ]; then
-			echo "USAGE: ? [sp, xp, hp]"
+			send_output "USAGE: ? [sp, xp, hp]"
 			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		fi
 	elif [ "$a1" == "set" ]; then
 		if [ "$a2" == "text-speed" ]; then
 			if [ "$a3" == "" ]; then
-				echo "USAGE: set text-speed [seconds]"
+				send_output "USAGE: set text-speed [seconds]"
 				prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 			else
-				echo "$a3" > "$basedir/config/text_speed.txt"
+				send_output "$a3" > "$basedir/config/text_speed.txt"
 				prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 			fi
 		elif [ "$a2" == "" ]; then
-			echo "USAGE: set [SETTING] [VALUE]"
+			send_output "USAGE: set [SETTING] [VALUE]"
 			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		elif [ "$a2" == "ansi" ]; then
 			if [ "$a3" == "" ]; then
-				echo "USAGE: set ansi [on/off]"
+				send_output "USAGE: set ansi [on/off]"
 				prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 			elif [ "$a3" == "on" ]; then
 				echo "on" > $basedir/config/ansi.txt
@@ -222,33 +220,33 @@ function prompt {
 				echo "off" > $basedir/config/ansi.txt
 				prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 			else
-				echo "USAGE: set ansi [on/off]"
-				echo "E: Input was invaild."
+				send_output "USAGE: set ansi [on/off]"
+				send_output "E: Input was invaild."
 				prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 			fi
 		else
-			echo "USAGE: set [SETTING] [VALUE]"
-			echo "E: Setting Not Found."
+			send_output "USAGE: set [SETTING] [VALUE]"
+			send_output "E: Setting Not Found."
 			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		fi
 	elif [ "$a1" == "get" ]; then
 		if [ "$a2" == "hp" ]; then
 			local username="$(cat $basedir/db/username.txt)"
-			cat $basedir/home/$username/hp.pwd
+			send_output "$(cat $basedir/home/$username/hp.pwd)"
 			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		elif [ "$a2" == "xp" ]; then
 			## TEMP
-			echo "$xp"
+			send_output "$xp"
 			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		elif [ "$a2" == "sp" ]; then
-			echo "$sp"
+			send_output "$sp"
 			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		elif [ "$a2" == "" ]; then
-			echo "USAGE: get [value]"
+			send_output "USAGE: get [value]"
 			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		else
-			echo "USAGE: get [value]"
-			echo "E: Value not Found."
+			send_output "USAGE: get [value]"
+			send_output "E: Value not Found."
 			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		fi
 	elif [ "$choice" == "$1" ]; then
@@ -256,23 +254,23 @@ function prompt {
 	elif [ "$choice" == "$3" ]; then
 		$4
 	elif [ "$choice" == "help" ]; then
-		echo "Avaiable Commands [General]:"
-		echo "	exit, no-save"
-		echo "	?, sp xp hp"
-		echo "	get, hp sp xp quest"
-		echo "	set, text-speed ansi"
-		echo "- Scene Specific -"
+		send_output "Avaiable Commands [General]:"
+		send_output "   exit, no-save"
+		send_output "   ?, sp xp hp"
+		send_output "   get, hp sp xp quest"
+		send_output "   set, text-speed ansi"
+		send_output "   clear"
+		send_output "   redraw"
+		send_output "- Scene Specific -"
 		if [ ! "$1" == "" ]; then 
-			echo "	$1"
+			send_output "	$1"
 		fi
 		if [ ! "$3" == "" ]; then 
-			echo "	$3"
+			send_output "	$3"
 		fi
 		prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
-	elif [ "$choice" == "" ]; then
-		echo ""
 	else
-		echo "Command Not Found."
+		send_output "Command Not Found."
 		prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 	fi
 }

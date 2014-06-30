@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+pushd "content/loaded" >/dev/null
+zip -r default.zip *
+mv default.zip ../
+popd >/dev/null

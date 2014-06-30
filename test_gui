@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# (c) 2014 RDashINC
+
+export basedir=`bash get_basedir`
+export username=RainbowDashDC
+
+source engine/rrpg_modloader.bash
+draw_main && prompt

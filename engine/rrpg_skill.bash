@@ -12,13 +12,9 @@
 ##############################################
 export DATE="[18/07/13-BTF]"                 #
 export VER="0.1"                             # 
-export basedir=$(get_basedir.cmd)
 ##############################################
 
 ## FUNCTIONS
-
-## Temporary mod sourceing till this is sourced.
-source $basedir/content/rrpg_modloader.bash 1>/dev/null
 
 function skill_prompt {
 	get_class
@@ -44,8 +40,8 @@ function get_diff {
 }
 
 function generate_skills {
-	## localize file
-	local basedir="$1"
+	echo -n "generating skill list..."
+	
 	local username="$(cat $basedir/db/username.txt)"
 	local file="$basedir/home/$username/skills.pwd"
 
@@ -74,6 +70,7 @@ function generate_skills {
 		echo "Strength: 5" >> $file
 	fi
 
+	echo "done"
 	return
 }
 
@@ -81,10 +78,10 @@ function write_skill {
 	local username="$(cat $basedir/db/username.txt)"
 	if [ "$1" == "" ]; then
 		echo "USAGE: rrpg_skill.bash [skill_to_write] [skill_value]"
-		exit
+		return
 	elif [ "$2" == "" ]; then
 		echo "USAGE: rrpg_skill.bash [skill_to_write] [skill_value]"
-		exit
+		return
 	fi
 	local skill_to_write="$1"
 	local skill_value="$2"
@@ -178,12 +175,12 @@ function skills {
 			echo "OK"
 		else
 			echo "FAIL"
-			echo "Input was invaild." && exit
-			exit
+			echo "Input was invaild." && return
+			return
 		fi
 	else
 		echo "FAIL"
-		echo "Input was invalid." && exit
+		echo "Input was invalid." && return
 	fi
 
 	echo -n "Writing Skill Value..."
@@ -204,12 +201,11 @@ function skills {
 		echo "$sp_total"
 		write_sp "0"
 	fi
-	exit
+	return
 }
 
 if [ "$1" == "--generate" ]; then
 	generate_skills $basedir
-	exit
+else
+	skill_prompt "$1" "$2" "$3"
 fi
-
-skill_prompt "$1" "$2" "$3"

@@ -16,6 +16,10 @@
 export ver="1.4.3.2-ext"
 export date="24/5/14-BTF" ## DATE-SEARCH
 export os_name=$(expr substr $(uname -s) 1 6)
+export h=30
+export w=100
+
+echo -ne "\033[8;${h};${w}t"
 
 if [ "$1" == "--force-linux" ]; then
 	export os_name=""
