@@ -26,15 +26,16 @@ If you want to use it, it will be released when Equestria's Betrayal reaches alp
 How to run
 --------------
 
+##### Linux
 ```sh
  git clone https://github.com/RDashINC/rrpg-cmd
  bash rrpg
 ```
 
-##### Configuring modules
-* see mod/mod_<name>.bash
+##### Windows
+Download the latest _release_-windows.zip
 
-
+##### VM Image
 VM Image: https://www.dropbox.com/s/9fdxff5o538a3of/Equestrias_Betrayal_slitaz_vm.7z
 User: `eqb`
 Password: `eqb`
