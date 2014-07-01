@@ -36,6 +36,10 @@ How to run
 
 
 VM Image: https://www.dropbox.com/s/9fdxff5o538a3of/Equestrias_Betrayal_slitaz_vm.7z
+User: `eqb`
+Password: `eqb`
+
+Use virtualbox, base 256mb RAM, runs on slitaz.
 
 
 License
