@@ -5,7 +5,7 @@
 
 export HISTFILE_OLD=$HISTFILE
 export HISTFILE=$basedir/home/$username/history
-export LOGFILE="$basedir/tmp/output.txt"
+export LOGFILE=$basedir/tmp/output.txt
 export RRPG_PROMPT="> "
 export RRPG_HEADER="Equestria's Betrayal"
 export RRPG_HEADER_2="v1.2"
@@ -60,10 +60,11 @@ print_chars() {
 
 draw_prompt() {
 	local cols=`tput cols`
+	local lines=`tput lines`
 	to_bottom
 	tput cuu 4
 	print_chars " " $cols
-	tput cuu1
+	tput cup $(($lines-5)) 0
 	history -n
 	if [ ! "$1" == "--no-read" ]; then
 		read -ep "${RRPG_PROMPT}" choice
