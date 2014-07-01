@@ -27,6 +27,7 @@ How to run
 --------------
 
 ##### Linux
+Notice: You MUST be in the folder that contains rrpg, unless it will fail to launch.
 ```sh
  git clone https://github.com/RDashINC/rrpg-cmd
  bash rrpg
