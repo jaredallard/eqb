@@ -84,7 +84,7 @@ export On_IPurple="\033[10;95m"  # Purple
 export On_ICyan="\033[0;106m"    # Cyan
 export On_IWhite="\033[0;107m"   # White
 
-NC="\e[m"               # Color Reset
+NC="\033[m"               # Color Reset
 
 if [ "$1" == "mod_loader" ]; then
 	echo "OK"
