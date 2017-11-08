@@ -29,7 +29,7 @@ function parse_cfg {
 		return
 	fi
 	if [ ! "$3" == "--no-manifest" ]; then
-		if [ ! "$(head $1 -n 1)" == "#RRPG_MANIFEST" ]; then
+		if [ ! "$(head -n1 $1)" == "#RRPG_MANIFEST" ]; then
 			error "expecting 'RRPG_MANIFEST' since line #1"
 			return
 		fi

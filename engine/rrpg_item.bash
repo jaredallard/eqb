@@ -83,7 +83,7 @@ add_item() {
 	mv $basedir/home/$username/items.lst $basedir/tmp/items.lst.bk ## Preserve File in TMP.
 	mv $basedir/tmp/items.tmp $basedir/home/$username/items.lst
 
-	if [ ! "$amount_orig" -gt "1" ]; then 
+	if [ ! "$amount_orig" -gt "1" ]; then
 		echo -e "${White}** ${Green}`an_or_a ${item::1}`${White} '${Cyan}$item${White}' ${Green} was added to your inventory!${NC}"
 	else
 		echo -e "${White}** ${Purple}$amount_orig${White} '${Cyan}${item}s${White}' ${Green} were added to your inventory! You Have: ${Purple}$amount${White}.${NC}"
@@ -140,7 +140,7 @@ remove_item() {
 	mv $basedir/tmp/items.tmp $basedir/home/$username/items.lst
 	if [ ! "$amount_orig" -gt "1" ]; then
 		echo -e "${White}** ${Red}`an_or_a ${item::1}`${White} '${Cyan}${item}${White}' ${Red} was removed from your inventory! ${Purple}$amount${White} ${Red}left!${NC}"
-	else 
+	else
 		echo -e "${White}** ${Purple}$amount_orig${White} '${Cyan}${item}s${White}' ${Red} were removed from your inventory! ${Purple}$amount${White} ${Red}left!${NC}${NC}"
 	fi
 }
@@ -171,14 +171,14 @@ gen_attribs() {
 			echo ""
 			echo "Err: $item_name isn't a real item"
 			exit
-		elif [ $item_number == 0 ]; then
+		elif [[ $item_number == 0 ]]; then
 			if [ "$1" == "--verbose" ]; then
 				echo ""
 			fi
 
 		else
 			parse_cfg $item_path weildable
-			if [ $weildable == 1 ]; then
+			if [[ $weildable == 1 ]]; then
 				if [ $(is_equipped ${item_name}) == "true" ]; then
 					if [ "$1" == "--verbose" ]; then
 						echo -n " \ equipped"
