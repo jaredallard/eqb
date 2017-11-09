@@ -236,11 +236,19 @@ function prompt {
 		send_output "   set, text-speed ansi"
 		send_output "   clear"
 		send_output "   redraw"
+	elif [ "$a1" == "" ]; then
+		# don't do anything, basically next stage.
+		return
 	else
 		send_output "Command Not Found."
 	fi
 
-	prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
+	prompt
+
+	# So, we have to be able to handle random input. So, do we loop prompt?
+	# i.e "prompt".
+	# or do we just RETURN and have the levels handle this
+	# We should return and allow the prompt to be looped someother way
 }
 
 function save_exit {
