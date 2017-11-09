@@ -17,7 +17,7 @@
 ############################################                   #
 export ver="1.2.5"                         #                   #
 export date="[29/08/13-BTF]"               #                   #
-export basedir=$(get_basedir.cmd)          #                   #
+export basedir=$(get_basedir)              #                   #
 ############################################                   #
 ##                                                             #
 ################################################################
@@ -186,4 +186,3 @@ function level_up {
 assign_var "$1" "$2" "$3"
 check_difficulty "$difficulty"
 check_xp "$level" "$xp" "$level_gov"
-

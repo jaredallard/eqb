@@ -68,11 +68,15 @@ draw_prompt() {
 	history -n
 	if [ ! "$1" == "--no-read" ]; then
 		read -ep "${RRPG_PROMPT}" choice
+
+		 # save the choice
+		export choice=$choice
+		echo "$choice" >> ${HISTFILE}
 	else
+
+		# we're just drawing the prompt, it's not an actual real one.
 		echo -ne "${RRPG_PROMPT}"
 	fi
-	export choice=$choice
-	echo "$choice" >> ${HISTFILE}
 }
 
 draw_tip() {
@@ -107,9 +111,9 @@ clear_lines() {
 
 
 		while [ $n -lt $cols ]
-		do 
+		do
 			echo -n ' '
-			let n=$n+1 
+			let n=$n+1
 		done
 		tput rc
 	done
@@ -123,9 +127,9 @@ echo_to_end() {
 	local v=""
 
 	while [ $n -lt $cols ]
-	do 
+	do
 		local v="$v$1"
-		let n=$n+1 
+		let n=$n+1
 	done
 	echo -n $v
 }
@@ -135,9 +139,9 @@ echo_amount() {
 	local n=0
 	local v=""
 	while [ $n -lt $number ]
-	do 
+	do
 		local v="$v$1"
-		let n=$n+1 
+		let n=$n+1
 	done
 	echo -n "$v"
 }
@@ -188,7 +192,7 @@ send_output() {
 					let m=$m+1
 				done
 			fi
-			
+
 			# Clear the text section
 			cat $basedir/tmp/cls
 
@@ -242,7 +246,7 @@ draw_main() {
 
 	# RM cls file
 	rm -rf $basedir/tmp/cls
-	
+
 	# Load User history file.
 	if [[ ! -e $HISTFILE ]]; then
 		touch "$HISTFILE"

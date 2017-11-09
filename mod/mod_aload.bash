@@ -127,7 +127,7 @@ function cecho {
 	if [ "$tmp" == "on" ]; then
 		cecho_src "$1" "$2"
 	else
-		echo -e "$1" 
+		echo -e "$1"
 	fi
 }
 
@@ -135,29 +135,21 @@ function prompt {
 	local username="$(cat $basedir/db/username.txt)"
 	export choice=""
 	export choice_l=""
-	### My Amazing Prompt System. Great, right?
-	### NTS. Create AWK system to automate set/get system.
-	if [ ! "$1" == "" ]; then
-		if [ ! "$3" == "" ]; then
-			if [ ! "$5" == "" ]; then
-				if [ ! "$7" == "" ]; then
-					if [ ! "$9" == "" ]; then
-						echo "Options: $1, $3, $5, $7, $9."
-					else
-						echo "Options: $1, $3, $5, $7."
-					fi
-				else
-					echo "Options: $1, $3, $5."
-				fi
-			else
-				echo "Options: $1, $3."
-			fi
-		else
-			echo "Options: $1."
-		fi
-	fi
 
+	# draw a non-interactive prompt.
+	draw_prompt --no-read
+
+	# load the level into the buffer.
+	if [[ ! "$1" == "" ]]; then
+		# load a level
+		source $basedir/content/loaded/levels/$1 !>/dev/null || erorr_exit "Err: Failed to load level: '$level'."
+		$1
+	fi;
+
+	# This blocks, waiting for the user to answer, real prompt.
 	draw_prompt
+
+
 	export a1="$(echo $choice | awk '{ print $1 }')"
 	export a2="$(echo $choice | awk '{ print $2 }')"
 	export a3="$(echo $choice | awk '{ print $3 }')"
@@ -168,91 +160,74 @@ function prompt {
 	elif [ "$a1" == "redraw" ]; then
 		clear
 		draw_main
-		prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
+
 	elif [ "$choice" == "save" ]; then
 		send_output "E: Save is deprecated."
 		send_output "	- See Github ISSUE #2"
-		prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
+
 	elif [ "$choice" == "clear" ]; then
 		clear
 		draw_main
-		prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
+
 	elif [ "$a1" == "?" ]; then
 		if [ "$a2" == "sp" ]; then
 			send_output "Skill Points."
 			send_output "   Skill Points determine your ability to do certain functions,"
 			send_output "   Throught the game. They are obtained by 'leveling up'."
-			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
+
 		elif [ "$a2" == "xp" ]; then
 			send_output "eXPerience Points."
 			send_output "   Expirence Points dictate when you level-up. They are gained by;"
 			send_output "   Quests, Battles, and other miscilanious tasks."
-			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
+
 		elif [ "$a2" == "hp" ]; then
 			send_output "Health Points."
 			send_output "   Health Points determine the amount of damage you can take before"
 			send_output "   'death'. They can be increased by potions, magic, and certain skills."
-			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
+
 		elif [ "$a2" == "" ]; then
 			send_output "USAGE: ? [sp, xp, hp]"
-			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
+
 		fi
 	elif [ "$a1" == "set" ]; then
 		if [ "$a2" == "text-speed" ]; then
 			if [ "$a3" == "" ]; then
 				send_output "USAGE: set text-speed [seconds]"
-				prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 			else
 				send_output "$a3" > "$basedir/config/text_speed.txt"
-				prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 			fi
 		elif [ "$a2" == "" ]; then
 			send_output "USAGE: set [SETTING] [VALUE]"
-			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		elif [ "$a2" == "ansi" ]; then
 			if [ "$a3" == "" ]; then
 				send_output "USAGE: set ansi [on/off]"
-				prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 			elif [ "$a3" == "on" ]; then
 				echo "on" > $basedir/config/ansi.txt
-				prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 			elif [ "$a3" == "off" ]; then
 				echo "off" > $basedir/config/ansi.txt
-				prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 			else
 				send_output "USAGE: set ansi [on/off]"
 				send_output "E: Input was invaild."
-				prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 			fi
 		else
 			send_output "USAGE: set [SETTING] [VALUE]"
 			send_output "E: Setting Not Found."
-			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		fi
 	elif [ "$a1" == "get" ]; then
 		if [ "$a2" == "hp" ]; then
 			local username="$(cat $basedir/db/username.txt)"
 			send_output "$(cat $basedir/home/$username/hp.pwd)"
-			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		elif [ "$a2" == "xp" ]; then
 			## TEMP
 			send_output "$xp"
-			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		elif [ "$a2" == "sp" ]; then
 			send_output "$sp"
-			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		elif [ "$a2" == "" ]; then
 			send_output "USAGE: get [value]"
-			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		else
 			send_output "USAGE: get [value]"
 			send_output "E: Value not Found."
-			prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 		fi
-	elif [ "$choice" == "$1" ]; then
-		$2
-	elif [ "$choice" == "$3" ]; then
-		$4
 	elif [ "$choice" == "help" ]; then
 		send_output "Avaiable Commands [General]:"
 		send_output "   exit, no-save"
@@ -261,18 +236,11 @@ function prompt {
 		send_output "   set, text-speed ansi"
 		send_output "   clear"
 		send_output "   redraw"
-		send_output "- Scene Specific -"
-		if [ ! "$1" == "" ]; then 
-			send_output "	$1"
-		fi
-		if [ ! "$3" == "" ]; then 
-			send_output "	$3"
-		fi
-		prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 	else
 		send_output "Command Not Found."
-		prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 	fi
+
+	prompt "$1" "$2" "$3" "$4" "$5" "$6" "$7" "$8"
 }
 
 function save_exit {

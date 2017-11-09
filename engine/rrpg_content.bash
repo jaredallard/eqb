@@ -8,7 +8,6 @@
 ## VARIABLES
 export content_ver="1.3.2-release"
 export content_date="24/10/13-BTF"
-export basedir=$(get_basedir.cmd)
 
 ## CHECK CMDLINE.
 if [ "$1" == "" ]; then
@@ -17,7 +16,7 @@ if [ "$1" == "" ]; then
 fi
 
 ## Load Modules
-source $basedir/content/rrpg_modloader.bash 1>/dev/null
+source $basedir/engine/rrpg_modloader.bash 1>/dev/null
 
 function init_cp {
 	# Handles anything level based.
