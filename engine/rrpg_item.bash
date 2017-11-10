@@ -84,9 +84,9 @@ add_item() {
 	mv $basedir/tmp/items.tmp $basedir/home/$username/items.lst
 
 	if [ ! "$amount_orig" -gt "1" ]; then
-		echo -e "${White}** ${Green}`an_or_a ${item::1}`${White} '${Cyan}$item${White}' ${Green} was added to your inventory!${NC}"
+		send_output "${White}** ${Green}`an_or_a ${item::1}`${White} '${Cyan}$item${White}' ${Green} was added to your inventory!${NC}"
 	else
-		echo -e "${White}** ${Purple}$amount_orig${White} '${Cyan}${item}s${White}' ${Green} were added to your inventory! You Have: ${Purple}$amount${White}.${NC}"
+		send_output "${White}** ${Purple}$amount_orig${White} '${Cyan}${item}s${White}' ${Green} were added to your inventory! You Have: ${Purple}$amount${White}.${NC}"
 	fi
 }
 

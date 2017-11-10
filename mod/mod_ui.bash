@@ -7,7 +7,7 @@ export HISTFILE_OLD=$HISTFILE
 export HISTFILE=$basedir/home/$username/history
 export LOGFILE=$basedir/tmp/output.txt
 export RRPG_PROMPT="> "
-export RRPG_HEADER="Equestria's Betrayal"
+export RRPG_HEADER="eqb"
 export RRPG_HEADER_2="v1.2"
 
 echo "" > ${LOGFILE}
@@ -55,7 +55,7 @@ print_chars() {
 		return
 	fi
 
-	for a in `seq $2`; do printf "$1"; done
+	for a in `seq $2`; do echo -ne "$1"; done
 }
 
 draw_prompt() {
@@ -158,43 +158,51 @@ send_output() {
 	local num=0
 	local final=""
 	to_top
+
+	# hide the cursor
+	tput civis
+
+
+	# until i is equal to message chars
 	for (( i=0; i<${message_chars}; i++ )); do
+
+		# if $i is greater or equal to amount of colums
 		if [[ $i -ge $cols ]]; then
 			local crw=$cols
+
+			# until $i is less than the amount of colums.
 			until [ $i -lt $cols ]
 			do
 				local cols=$(($cols+$cols))
 				let n=$n+1
+
 				local final="${final}${message:$i:1}"
 				line[$n]="true"
 			done
+
 		else
 			local final="${final}${message:$i:1}"
 		fi
 	done
 	local message=$final
 
-	while :
-	do
+	# Tracks scrolling of text
+	while :; do
 		let num=$num+1
-		if [ "${num}" == "$(($lines))" ]; then
+		if [[ "${num}" == "$lines" ]]; then
 			local d=2
+
 			line[$lines]="false"
 			to_top
 			tput cud $d
-			export no_echo="false"
-			local m=0
-			if [ ! -e "$basedir/tmp/cls" ]; then
-				echo -ne "" > $basedir/tmp/cls
-				until [ $m == $(($lines)) ]
-				do
-					printf "%0.s " `seq 1 $(($cols))` >> $basedir/tmp/cls
-					let m=$m+1
-				done
-			fi
 
-			# Clear the text section
-			cat $basedir/tmp/cls
+			local m=0
+
+			# clear the bg to prevent overflow.
+			until [[ $m == $(($lines)) ]]; do
+				printf "%0.s " `seq 1 $(($cols))`
+				let m=$m+1
+			done
 
 			to_top
 			tput cud $d
@@ -207,12 +215,10 @@ send_output() {
 		fi
 	done
 
-	if [ ! "$no_echo" == "true" ]; then
-		line[$num]="true"
-		echo "$message" | tee -a ${LOGFILE}
-	else
-		export no_echo="false"
-	fi
+	tput cnorm
+
+	line[$num]="true"
+	echo "$message" | tee -a ${LOGFILE}
 }
 
 draw_box() {
