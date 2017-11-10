@@ -154,9 +154,8 @@ function prompt {
 	export a2="$(echo $choice | awk '{ print $2 }')"
 	export a3="$(echo $choice | awk '{ print $3 }')"
 	if [ "$a1" == "exit" ]; then
-		send_output "Until Next Time..."
-		clean_exit
-		return
+		# TODO: Clean exit
+		exit
 	elif [ "$a1" == "redraw" ]; then
 		clear
 		draw_main

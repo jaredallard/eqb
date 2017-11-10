@@ -218,7 +218,8 @@ send_output() {
 	tput cnorm
 
 	line[$num]="true"
-	echo "$message" | tee -a ${LOGFILE}
+	echo -e "$message"
+	echo -e "$message" >> ${LOGFILE}
 }
 
 draw_box() {
