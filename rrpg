@@ -13,8 +13,8 @@
 ## VER=1.4.2.1.6.4A ## VERSION-SEARCH
 
 ## INFORMATION
-export ver="1.4.3.2-ext"
-export date="24/5/14-BTF" ## DATE-SEARCH
+export ver="1.0"
+export date="null" ## DATE-SEARCH
 export os_name=$(expr substr $(uname -s) 1 6)
 export h=30
 export w=100
@@ -71,9 +71,9 @@ fi
 function rrpg_help {
 	export ver
 	export date
-	echo "RDC - RRPG [$ver|$date]"
+	echo "eqb"
 	echo ""
-	echo "DESC: My Little Pony Friendship is Magic(R): based RPG game."
+	echo "DESC: A text based RPG engine"
 	echo "USAGE: rrpg [SWITCH]"
 	echo "       rrpg [OPTION]"
 	echo ""
@@ -88,7 +88,7 @@ function rrpg_help {
 	echo ""
 	echo "More Command-Line Control Coming Soon!"
 	echo ""
-	echo "Email and bug reports/suggestions to <allardj64@gmail.com>"
+	echo "Email and bug reports/suggestions to <jaredallard@outlook.com>"
 	exit
 }
 
@@ -165,7 +165,7 @@ function init {
 
 	## Pass Arguments to arguments function.
 	get_args $*
-	
+
 	## Load Content Pack.
 	depends mod_cp
 	if [ "$cp_cust" == "" ]; then
@@ -177,13 +177,13 @@ function init {
 	# Load menus
 	source "$basedir/content/loaded/init/menus.bash"
 	clear
-	
+
 	## "Splash"
 	if [ -e "$basedir/content/loaded/init/splash.bash" ]; then
 		source "$basedir/content/loaded/init/splash.bash"
 		read -t 3 1>/dev/null 2>/dev/null
 	fi
-	
+
 	## Location to go to after "splash".
 	menu
 }
@@ -191,9 +191,9 @@ function init {
 function menu {
 	clear
 	rrpg_main
-	cecho "Version: $ver - $date" green
+	cecho "Version: $ver" green
 	echo ""
-	if [ ! -e "$basedir/db/rrpg_main.rdb" ]; then 
+	if [ ! -e "$basedir/db/rrpg_main.rdb" ]; then
 		cecho "1. New Game" green
 		cecho "2. Continue Game" red
 	else
@@ -202,13 +202,8 @@ function menu {
 	fi
 	cecho "3. Settings" cyan
 	cecho "4. Debug" red
-	cecho "5. RDashInc" cyan
-	if [ -e "$basedir/content/loaded/info/info" ]; then
-		cecho "6. Content Pack Information." green
-	else
-		cecho "6. Content Pack Information." red
-	fi
-	cecho "7. Exit" red
+	cecho "5. Content Pack Information." green
+	cecho "6. Exit" red
 	echo ""
 	cecho "Selection: \c" cyan
 	read menu_choice
@@ -224,11 +219,8 @@ function menu {
 		elif [ "$menu_choice" == "4" ]; then
 			debug_menu
 		elif [ "$menu_choice" == "5" ]; then
-			exo-open --launch Webbrowser http://rdashinc.tk/ 1>/dev/null 2>/dev/null
-			read -p "Press any key to continue."
-		elif [ "$menu_choice" == "6" ]; then
 			content_pack_menu
-		elif [ "$menu_choice" == "7" ]; then
+		elif [ "$menu_choice" == "6" ]; then
 			rm -rf $basedir/content/loaded
 			rm -rf $basedir/db/*.txt
 			rm -rf $basedir/tmp/*
