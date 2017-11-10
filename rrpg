@@ -11,6 +11,11 @@ export os_name=$(expr substr $(uname -s) 1 6)
 export h=30
 export w=100
 
+function check_for_binary {
+	/usr/bin/env $1 1>/dev/null 2>/dev/null || error_exit "Binary '$1' not found"
+	return
+}
+
 echo -ne "\033[8;${h};${w}t"
 
 if [[ "$1" == "--force-linux" ]]; then
@@ -141,6 +146,10 @@ function init {
 	## Load Modules JIT.
 	## LOAD MODS TO ENABLE ANSI ECHO SUPPORT AND OTHER THINGS
 	source ${ENGINE_DIR}/rrpg_modloader.bash --verbose
+
+	check_for_binary "unzip"
+	check_for_binary "perl -v"
+	
 	clear
 
 	if [ ! -e "$basedir/config/ansi.txt" ]; then
