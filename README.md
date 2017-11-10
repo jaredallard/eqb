@@ -1,51 +1,18 @@
-Equestria's Betrayal
+eqb
 =========
 
-Equestria's Betrayal is an My Little Pony: Friendship is Magic RPG game, in bash.
-
-  - Fast
-  - Mod support
-  - Highly scableable game engine
-  - HIGHLY Customizable
-  - Multi-platform [win/linux]
+eqb is a text based RPG game engine written in bash.
 
 
 Version
 ----
 
-2.0-pre
+1.0
 
-Engine
------------
+## How to use this Engine
 
-Equestria's Betrayal uses the unpublished, and vsbe text-based rpg game engine.
+Checkout the docs and [GETTING_STARTED.md](GETTING_STARTED.md)
 
-If you want to use it, it will be released when Equestria's Betrayal reaches alpha.
+## License
 
-
-How to run
---------------
-
-##### Linux
-Notice: You MUST be in the folder that contains rrpg, unless it will fail to launch.
-```sh
- git clone https://github.com/RDashINC/rrpg-cmd
- bash rrpg
-```
-
-##### Windows
-Download the latest _release_-windows.zip
-
-##### VM Image
-VM Image: https://www.dropbox.com/s/9fdxff5o538a3of/Equestrias_Betrayal_slitaz_vm.7z
-User: `eqb`
-Password: `eqb`
-
-Use virtualbox, base 256mb RAM, runs on slitaz.
-
-
-License
-----
-
-GNUGPLv3
-
+MIT
