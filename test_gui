@@ -23,9 +23,13 @@ fi
 
 export username=jaredallard
 
+# Load Mods
 source mod/mod_cecho.bash
 source mod/mod_aload.bash
 source mod/mod_extcolors.bash
 source mod/mod_ui.bash
-draw_main && prompt
+source mod/mod_cfg.bash
 
+source engine/rrpg_item.bash
+
+draw_main && prompt 1_1

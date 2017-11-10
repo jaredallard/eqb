@@ -149,8 +149,6 @@ function init {
 
 	check_for_binary "unzip"
 	check_for_binary "perl -v"
-	
-	clear
 
 	if [ ! -e "$basedir/config/ansi.txt" ]; then
 		echo "on" > $basedir/config/ansi.txt
@@ -175,9 +173,15 @@ function init {
 		load_cp "$cp_cust" || error_exit "ERR: Content Pack failed too load. [$cp_cust]"
 	fi
 
+	# Generate Items List
+	source $ENGINE_DIR/rrpg_skill.bash --generate
+	source $ENGINE_DIR/rrpg_item.bash
+	gen_items
+	gen_equip
+	gen_attribs
+
 	# Load menus
 	source "$basedir/content/loaded/init/menus.bash"
-	clear
 
 	## "Splash"
 	if [ -e "$basedir/content/loaded/init/splash.bash" ]; then

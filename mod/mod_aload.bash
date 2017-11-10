@@ -140,7 +140,7 @@ function prompt {
 	draw_prompt --no-read
 
 	# load the level into the buffer.
-	if [[ ! "$1" == "" ]]; then
+	if [[ ! "$1" == "" ]] && [[ ! "$1" == "return" ]]; then
 		# load a level
 		source $basedir/content/loaded/levels/$1 !>/dev/null || erorr_exit "Err: Failed to load level: '$level'."
 		$1
@@ -213,7 +213,6 @@ function prompt {
 			local username="$(cat $basedir/db/username.txt)"
 			send_output "$(cat $basedir/home/$username/hp.pwd)"
 		elif [ "$a2" == "xp" ]; then
-			## TEMP
 			send_output "$xp"
 		elif [ "$a2" == "sp" ]; then
 			send_output "$sp"
@@ -231,11 +230,10 @@ function prompt {
 		send_output "   set, text-speed ansi"
 		send_output "   clear"
 		send_output "   redraw"
-	elif [ "$a1" == "" ]; then
-		# don't do anything, basically next stage.
-		return
 	else
-		send_output "Command Not Found."
+		# support user input capturing, when not a builtin
+		echo "$choice" >> $basedir/home/$username/lastinput.txt
+		return
 	fi
 
 	prompt
@@ -244,6 +242,29 @@ function prompt {
 	# i.e "prompt".
 	# or do we just RETURN and have the levels handle this
 	# We should return and allow the prompt to be looped someother way
+}
+
+# get the user's last input
+function get_input {
+	local input=$(cat $basedir/home/$username/lastinput.txt)
+	local lowercase_input="$(echo ${input,,} | tr -d '\n')"
+
+	echo "${lowercase_input/ /}"
+	echo "" > $basedir/home/$username/lastinput.txt
+}
+
+## DIALOG MAPPING
+function player_thinks {
+	send_output "${CYAN}** $*"
+}
+
+function player_says {
+	send_output "You say: $*"
+}
+
+function description {
+	send_output "\033[3m$*\033[0m\n"
+	send_output ""
 }
 
 function save_exit {

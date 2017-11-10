@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Handles UI.
-# Sortof like a bash ncureses thing...
-# (c) 2014 RDashINC
+#
+# UI for eqb.
+#
+# MOD_NAME: mod_ui
+# MOD_AUTHOR: JaredAllard
 
 export HISTFILE_OLD=$HISTFILE
 export HISTFILE=$basedir/home/$username/history
@@ -274,3 +276,5 @@ draw_main() {
 	draw_box
 	to_bottom
 }
+
+echo "OK"
