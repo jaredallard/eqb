@@ -1,16 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
-# AUTHOR: RAINBOWDASHDC (@RAINBOWDASHDC) / aka (@2root4you)
-# COPYRIGHT: RDASHINC http://rdashinc.github.io/ (GNUGPLV3)
-# DESC: RPG GAME FOR LINUX, MLP.
-# NOTE: I use alot of NOTEs because they're highlighted on KATE c:
-# NOTE: My Little Pony: Frienship is Magic(R) is a TRADEMARK of Hasbro (INC). Used without permission.
-# NOTE: Menus moved to content/loaded/init/menus.bash
-
-### Why Don't I ever document shit? -- Oh hey, I do.
-
-## For Updater Module.
-## VER=1.4.2.1.6.4A ## VERSION-SEARCH
+# (c) 2017 Jared Allard <jaredallard@outlook.com>
+#
+# eqb - Text based RPG game engine:
 
 ## INFORMATION
 export ver="1.0"
@@ -21,11 +13,11 @@ export w=100
 
 echo -ne "\033[8;${h};${w}t"
 
-if [ "$1" == "--force-linux" ]; then
+if [[ "$1" == "--force-linux" ]]; then
 	export os_name=""
 fi
 
-if [ "$os_name" == "CYGWIN" ]; then
+if [[ "$os_name" == "CYGWIN" ]]; then
 	echo "Using Cygwin, windows operating system."
 	export os="win32"
 	export basedir=$(get_basedir.cmd)
