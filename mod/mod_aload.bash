@@ -160,10 +160,6 @@ function prompt {
 		clear
 		draw_main
 
-	elif [ "$choice" == "save" ]; then
-		send_output "E: Save is deprecated."
-		send_output "	- See Github ISSUE #2"
-
 	elif [ "$choice" == "clear" ]; then
 		clear
 		draw_main
@@ -269,7 +265,7 @@ function slow {
 
 function secho {
 	## Makes it easier to use 'slow'.
-	echo "$1" && slow
+	send_output "$1" && slow
 }
 
 function level {
@@ -335,7 +331,7 @@ function enter_content {
 function rrpg_main {
 	## GLOBAL LOGO CONTROL, and COLOR.
 	cecho "============================================" cyan
-	cecho "=                   RRPG                   =" cyan
+	cecho "=                   eqb                    =" cyan
 	cecho "============================================" cyan
 }
 
