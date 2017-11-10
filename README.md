@@ -20,7 +20,6 @@ A simple text based rpg game engine written in bash! A few things it provides is
 
 Install it on macOS via `brew update && brew install bash`.
 
-
 ## How to use this Engine
 
 Checkout the docs and [GETTING_STARTED.md](GETTING_STARTED.md)
