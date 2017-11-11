@@ -266,7 +266,7 @@ function player_says {
 }
 
 function description {
-	send_output "\033[3m$*\033[0m\n"
+	send_output "\033[3m$*\033[0m"
 	send_output ""
 }
 

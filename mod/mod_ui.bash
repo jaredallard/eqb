@@ -335,23 +335,11 @@ draw_sidebar() {
 
 # Attempt to redraw the terminal.
 restore_term() {
-	local lines=$((`tput lines`-8))
-	local file_length="$(wc -l ${LOGFILE})"
-	local file_pointer=$(($file_length-$lines))
-
 	to_top
 	draw_header
 	draw_box
 	draw_sidebar
 	to_bottom
-
-	local line_pos=0
-	until [[ $line_pos == $lines ]]; do
-		local line_pointer=$(($file_pointer+$line_pos))
-
-		tput cup $line_pos 0
-		head -"$line_pointer" ${LOGFILE}
-	done
 }
 
 draw_main() {
