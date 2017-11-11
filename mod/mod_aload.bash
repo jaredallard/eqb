@@ -232,6 +232,10 @@ function prompt {
 		send_output "   redraw"
 	else
 		# support user input capturing, when not a builtin
+		if [[ ! "$(echo $choice | tr -d '\n')" == "" ]]; then
+			send_output "> $choice"
+		fi
+
 		echo "$choice" >> $basedir/home/$username/lastinput.txt
 		return
 	fi
@@ -255,7 +259,8 @@ function get_input {
 
 ## DIALOG MAPPING
 function player_thinks {
-	send_output "${CYAN}** $*"
+	send_output "${Cyan}** $*"
+	tput sgr0
 }
 
 function player_says {
@@ -265,12 +270,6 @@ function player_says {
 function description {
 	send_output "\033[3m$*\033[0m\n"
 	send_output ""
-}
-
-function save_exit {
-	## Can't save in-between levels. (No Entry point.)
-	echo "Returning to menu..." && sleep 1
-	exit
 }
 
 function error_exit {

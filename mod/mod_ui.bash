@@ -12,14 +12,25 @@ export RRPG_PROMPT="> "
 export RRPG_HEADER="eqb"
 export RRPG_HEADER_2="v1.2"
 
+export Invert="\033[7m"
+export Reset="\033[0m"
+export Bold="\033[1m"
+
+
+SIDEBAR_LENGTH=20
+
 echo "" > ${LOGFILE}
 
 draw_header() {
-	local rhn=${#RRPG_HEADER}
-	local rhn2=${#RRPG_HEADER_2}
-	local rhnf=$(($rhn+$rhn2))
-	local NUM=$((`tput cols`-$rhnf))
-	echo -e "$(echo -n $RRPG_HEADER; printf "%0.s " `seq 1 $NUM`; echo "$RRPG_HEADER_2")"
+	local cols=`tput cols`
+
+	# set to beginning
+	tput cup 0 0
+	echo -ne "${Bold}$RRPG_HEADER"
+
+	# set version spot
+	tput cup 0 $(($(($cols-$SIDEBAR_LENGTH))-${#RRPG_HEADER_2}))
+	echo -ne "${Bold}$RRPG_HEADER_2${Reset}"
 }
 
 clean_exit() {
@@ -29,10 +40,45 @@ clean_exit() {
 	clear
 }
 
+draw_from_to() {
+	local y=$1
+	local start_x=$2
+	local end_x=$3
+	local text=$4
+
+	local i=$start_x
+
+	until [[ $i == $end_x ]]; do
+		tput cup $y $i
+		echo -ne "$text"
+
+		let i=$i+1
+	done
+}
+
+# Center Text on Y between X1 and X2.
+center_between_pos() {
+	local y=$1
+	local from_x=$2
+	local too_x=$3
+	local text=$4
+
+	# calculate distance between two points
+	local distance=$(($too_x-$from_x))
+	local string_length=${#text}
+
+	# subtract total distance by length of the string, then divide by two for close
+	local padding_left=$(($distance-$string_length))
+	local padding=$(($padding_left/2))
+
+	tput cup $y $(($from_x+$padding))
+	echo -ne "$text"
+}
+
 clear_output() {
+	local lines=$(tput lines)
 	local x=0
-	until [ $x == $lines ]
-	do
+	until [[ $x == $lines ]]; do
 		let x=$x+1
 		line[$x]="false"
 	done
@@ -65,9 +111,9 @@ draw_prompt() {
 	local lines=`tput lines`
 	to_bottom
 	tput cuu 4
-	print_chars " " $cols
-	tput cup $(($lines-5)) 0
+	tput cup $(($lines-4)) 0
 	history -n
+
 	if [ ! "$1" == "--no-read" ]; then
 		read -ep "${RRPG_PROMPT}" choice
 
@@ -128,11 +174,15 @@ echo_to_end() {
 	local n=0
 	local v=""
 
-	while [ $n -lt $cols ]
-	do
+	if [[ -z "$2" ]]; then
+		local 2=0
+	fi
+
+	while [[ $n -lt $(($cols-$2)) ]]; do
 		local v="$v$1"
 		let n=$n+1
 	done
+
 	echo -n $v
 }
 
@@ -230,7 +280,7 @@ draw_box() {
 
 	to_bottom
 	tput cuu 2
-	echo_to_end "="
+	echo_to_end "=" $SIDEBAR_LENGTH
 
 	# Section 2
 	tput cup $(($lines-2)) 0 && echo -n "="
@@ -242,12 +292,33 @@ draw_box() {
 	tput cup $(($lines-1)) 0 && echo -n "="
 	tput cup $(($lines-1)) 2
 	echo -ne "A: ${Red}$(cat $basedir/home/$username/attack.txt) ${NC}/ D: ${Blue}$(cat $basedir/home/$username/defense.txt)${NC}"
-	tput cup $(($lines-1)) $cols && echo -n "="
 
 	to_bottom
 
 	# Draw the prompt
 	draw_prompt --no-read
+}
+
+draw_sidebar() {
+	# sidebar is 10 chars from the RIGHT
+	local lines=`tput lines`
+	local cols=`tput cols`
+	local sidebar_border_left_pos=$(($cols-$SIDEBAR_LENGTH))
+
+	# draw side border to the left.
+	local i=0
+	until [[ $i == $(($lines+1)) ]]; do
+		echo -ne "|"
+		tput cup $i $sidebar_border_left_pos
+		let i=$i+1
+	done
+
+	# draw inventory header
+	center_between_pos 0 $sidebar_border_left_pos $cols "Inventory"
+
+	# plus 1 so we don't accidently draw on the border
+	draw_from_to 1 $(($sidebar_border_left_pos+1)) $cols "="
+	draw_from_to $(($lines-3)) $(($sidebar_border_left_pos+1)) $cols "="
 }
 
 draw_main() {
@@ -267,13 +338,12 @@ draw_main() {
 	# "Initialize" the display.
 	# i.e draw_main && prompt
 	clear
-	local lines=`tput lines`
-	local cols=`tput cols`
 
 	clear_output
 	to_top
 	draw_header
 	draw_box
+	draw_sidebar
 	to_bottom
 }
 
