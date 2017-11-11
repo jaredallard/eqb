@@ -158,12 +158,10 @@ function prompt {
 		exit
 	elif [ "$a1" == "redraw" ]; then
 		clear
-		draw_main
-
+		reload_term
 	elif [ "$choice" == "clear" ]; then
 		clear
-		draw_main
-
+		reload_term
 	elif [ "$a1" == "?" ]; then
 		if [ "$a2" == "sp" ]; then
 			send_output "Skill Points."
@@ -259,7 +257,7 @@ function get_input {
 
 ## DIALOG MAPPING
 function player_thinks {
-	send_output "${Cyan}** $*"
+	send_output "${Cyan}** $*${Reset}"
 	tput sgr0
 }
 

@@ -16,6 +16,8 @@ export Invert="\033[7m"
 export Reset="\033[0m"
 export Bold="\033[1m"
 
+declare -a line
+
 
 SIDEBAR_LENGTH=20
 
@@ -75,15 +77,6 @@ center_between_pos() {
 	echo -ne "$text"
 }
 
-clear_output() {
-	local lines=$(tput lines)
-	local x=0
-	until [[ $x == $lines ]]; do
-		let x=$x+1
-		line[$x]="false"
-	done
-}
-
 to_bottom() {
 	local lines=`tput lines`
 	tput cup $lines 0
@@ -109,10 +102,24 @@ print_chars() {
 draw_prompt() {
 	local cols=`tput cols`
 	local lines=`tput lines`
+	local prompt_y=$(($lines-4))
+
 	to_bottom
 	tput cuu 4
-	tput cup $(($lines-4)) 0
+	tput cup $prompt_y 0
+	tput civis
+
+	local i=0
+	local stop_clear=$(($cols-$(($SIDEBAR_LENGTH+${#RRPG_PROMPT}))))
+	until [[ $i == $stop_clear ]]; do
+		echo -ne " "
+		let i=$i+1
+	done
+
 	history -n
+
+	tput cup $prompt_y 0
+	tput cnorm
 
 	if [ ! "$1" == "--no-read" ]; then
 		read -ep "${RRPG_PROMPT}" choice
@@ -201,66 +208,69 @@ echo_amount() {
 send_output() {
 	# Handles all output, as it should.
 
-	local lines=`tput lines`
+	local lines=$((`tput lines`-8))
 	local cols=`tput cols`
-	local lines=$(($lines-8))
 	local message=$1
 	local message_chars=${#message}
-	local n=1
 	local num=0
 	local final=""
 	to_top
 
 	# hide the cursor
 	tput civis
-
-
+	#
 	# until i is equal to message chars
 	for (( i=0; i<${message_chars}; i++ )); do
 
 		# if $i is greater or equal to amount of colums
+		local n=1
 		if [[ $i -ge $cols ]]; then
 			local crw=$cols
 
 			# until $i is less than the amount of colums.
-			until [ $i -lt $cols ]
-			do
+			until [ $i -lt $cols ]; do
 				local cols=$(($cols+$cols))
 				let n=$n+1
 
 				local final="${final}${message:$i:1}"
-				line[$n]="true"
+				line[$n]=${#final}
 			done
 
 		else
 			local final="${final}${message:$i:1}"
 		fi
 	done
+
 	local message=$final
 
 	# Tracks scrolling of text
 	while :; do
 		let num=$num+1
 		if [[ "${num}" == "$lines" ]]; then
-			local d=2
-
-			line[$lines]="false"
 			to_top
-			tput cud $d
 
-			local m=0
+			local line_pos=2
+			until [[ $line_pos == $(($lines+3)) ]]; do
+				tput cup $line_pos 0
 
-			# clear the bg to prevent overflow.
-			until [[ $m == $(($lines)) ]]; do
-				printf "%0.s " `seq 1 $(($cols))`
-				let m=$m+1
+				# clear line
+				local stop_clear=$(($cols-$SIDEBAR_LENGTH))
+				local i=0
+				until [[ $i == $stop_clear ]]; do
+					echo -ne " "
+					let i=$i+1
+				done
+
+				let line_pos=$line_pos+1
 			done
 
+			# simulate move up
 			to_top
-			tput cud $d
+			tput cup 2 0
 			tail -n $(($lines-1)) ${LOGFILE}
+
 			break
-		elif [ ! "${line[$num]}" == "true" ]; then
+		elif [[ "${line[$num]}" == "false" ]] || [[ -z "${line[$num]}" ]]; then
 			to_top
 			tput cud $(($num+1))
 			break
@@ -269,7 +279,7 @@ send_output() {
 
 	tput cnorm
 
-	line[$num]="true"
+	line[$num]=$message_chars
 	echo -e "$message"
 	echo -e "$message" >> ${LOGFILE}
 }
@@ -321,8 +331,16 @@ draw_sidebar() {
 	draw_from_to $(($lines-3)) $(($sidebar_border_left_pos+1)) $cols "="
 }
 
+# Attempt to redraw the terminal.
+reload_term() {
+	clear
+	draw_main
+	restore_term
+	draw_prompt --no-read
+}
+
 draw_main() {
-	trap "clear; draw_main; draw_prompt --no-read" SIGWINCH
+	trap "reload_term" SIGWINCH
 
 	# RM cls file
 	rm -rf $basedir/tmp/cls
@@ -339,7 +357,6 @@ draw_main() {
 	# i.e draw_main && prompt
 	clear
 
-	clear_output
 	to_top
 	draw_header
 	draw_box
