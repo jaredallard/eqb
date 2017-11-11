@@ -158,10 +158,10 @@ function prompt {
 		exit
 	elif [ "$a1" == "redraw" ]; then
 		clear
-		reload_term
+		restore_term
 	elif [ "$choice" == "clear" ]; then
 		clear
-		reload_term
+		restore_term
 	elif [ "$a1" == "?" ]; then
 		if [ "$a2" == "sp" ]; then
 			send_output "Skill Points."

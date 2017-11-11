@@ -214,33 +214,35 @@ send_output() {
 	local message_chars=${#message}
 	local num=0
 	local final=""
+
 	to_top
 
 	# hide the cursor
 	tput civis
 	#
 	# until i is equal to message chars
-	for (( i=0; i<${message_chars}; i++ )); do
+	if [[ ! -z "$1" ]]; then
+		for (( i=0; i<${message_chars}; i++ )); do
 
-		# if $i is greater or equal to amount of colums
-		local n=1
-		if [[ $i -ge $cols ]]; then
-			local crw=$cols
+			# if $i is greater or equal to amount of colums
+			local n=1
+			if [[ $i -ge $cols ]]; then
+				local crw=$cols
 
-			# until $i is less than the amount of colums.
-			until [ $i -lt $cols ]; do
-				local cols=$(($cols+$cols))
-				let n=$n+1
+				# until $i is less than the amount of colums.
+				until [ $i -lt $cols ]; do
+					local cols=$(($cols+$cols))
+					let n=$n+1
 
-				local final="${final}${message:$i:1}"
-				line[$n]=${#final}
-			done
+					final="${final}${message:$i:1}"
+					line[$n]=${#final}
+				done
 
-		else
-			local final="${final}${message:$i:1}"
-		fi
-	done
-
+			else
+				final="${final}${message:$i:1}"
+			fi
+		done
+	fi
 	local message=$final
 
 	# Tracks scrolling of text
@@ -332,15 +334,28 @@ draw_sidebar() {
 }
 
 # Attempt to redraw the terminal.
-reload_term() {
-	clear
-	draw_main
-	restore_term
-	draw_prompt --no-read
+restore_term() {
+	local lines=$((`tput lines`-8))
+	local file_length="$(wc -l ${LOGFILE})"
+	local file_pointer=$(($file_length-$lines))
+
+	to_top
+	draw_header
+	draw_box
+	draw_sidebar
+	to_bottom
+
+	local line_pos=0
+	until [[ $line_pos == $lines ]]; do
+		local line_pointer=$(($file_pointer+$line_pos))
+
+		tput cup $line_pos 0
+		head -"$line_pointer" ${LOGFILE}
+	done
 }
 
 draw_main() {
-	trap "reload_term" SIGWINCH
+	trap "restore_term" SIGWINCH
 
 	# RM cls file
 	rm -rf $basedir/tmp/cls
