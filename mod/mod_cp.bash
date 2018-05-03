@@ -1,7 +1,7 @@
 #!/bin/bash
 # MOD_MANIFEST: rrpg_manifest
-# MOD_NAME: mod_Content-Parser
-# MOD_AUTHOR: RainbowDashDC
+# MOD_NAME: mod_cp
+# MOD_AUTHOR: Jared Allard <jaredallard@outlook.com>
 # MOD_DESC: Parsers Content ZIPS, and setups env too use them.
 # MOD_NOTES: Returns ERR-CODE 1 for any errors.
 # MOD_VERSION: 1.0-dev
@@ -52,10 +52,10 @@ function check_integrity {
 	# TODO: Put scan manifest here.
 	if [ -e "$basedir/content/$1/info/info" ]; then
 		depends mod_cfg 2>/dev/null || error_exit "ERR: CFG module not available? Reinstall."
-		parse_cfg "$basedir/content/$1/info/info" "version" --no-manifest
-		parse_cfg "$basedir/content/$1/info/info" "name" --no-manifest
-		parse_cfg "$basedir/content/$1/info/info" "author" --no-manifest
-		parse_cfg "$basedir/content/$1/info/info" "homepage" --no-manifest
+		parse_cfg "$basedir/content/$1/info/info" "version"
+		parse_cfg "$basedir/content/$1/info/info" "name"
+		parse_cfg "$basedir/content/$1/info/info" "author"
+		parse_cfg "$basedir/content/$1/info/info" "homepage"
 	else
 		cecho "ERR: No INFO file found." red
 		return 1
@@ -76,11 +76,11 @@ function load_cp {
 	if [ -e "$basedir/content/loaded" ]; then
 		rm -rf "$basedir/content/loaded"
 	fi
-	mkdir $basedir/content/loaded 1>/dev/null || echo "ERR: Couldn't create loaded directory. No Perms? $(return 1)" 
-	chmod 777 $basedir/content/loaded
-	unzip $basedir/content/$1 -d $basedir/content/loaded 1>/dev/null 2>/dev/null
+	mkdir "$basedir/content/loaded" 1>/dev/null || echo "ERR: Couldn't create loaded directory. No Perms?" 
+	chmod 777 "$basedir/content/loaded"
+	unzip "$basedir/content/$1" -d "$basedir/content/loaded" 1>/dev/null 2>/dev/null
 	cecho "OK" green
-	cecho "Checking Integrity of loaded content pack...\c" cyan
+	cecho "Checking Integrity of loaded content pack...\\c" cyan
 	check_integrity "loaded" || return 1
 	cecho "OK" green
 }

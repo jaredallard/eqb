@@ -1,11 +1,10 @@
 #!/bin/bash
 # MOD_MANIFEST: rrpg_manifest
 # MOD_NAME: mod_functions
-# MOD_AUTHOR: RainbowDashDC
+# MOD_AUTHOR: Jared Allard <jaredallard@outlook.com>
 # MOD_DESC: Provides useful functions for mods. (GLOBALLY) (Loaded at begining.)
 # MOD_VERSION: 1.2-dev
-# MOD_UPDATE_LINK: http://rainbowdashdc.github.io/rrpg/mod_aload.xml
-# MOD_UPDATE_TYPE: XML
+# MOD_UPDATE_TYPE: MANUAL
 # MOD_NOTE: Since this loaded at the begining of the mod_loader, (always) you can
 #           theoretiocally replace any of these functions with another mod. Thus allowing
 #           custom prompts, ansi echoing, and more.
@@ -24,12 +23,12 @@ function load_mod {
 		write_output load_mod "MOD_NOT_FOUND EXCEPTION."
 		return 1
 	fi
-	source $basedir/mod/mod_$1.bash
+	source "$basedir/mod/mod_$1.bash"
 }
 
 function error {
 	if [ "$1" == "" ]; then
-		echo "[func_error] ERROR: No Input provided." 1>>$basedir/tmp/mods.log
+		echo "[func_error] ERROR: No Input provided." >>"$basedir/tmp/mods.log"
 		return 1
 	fi
 	depends mod_cecho
@@ -42,9 +41,9 @@ function write_output {
 	# $1 = Module Name "$2"= Information
 	if [ "$verbose" == "" ]; then
 		if [ ! "$1" == "sl" ]; then
-			echo -e "[$1] $2" 1>>$basedir/tmp/mods.log
+			echo -e "[$1] $2" >">$basedir/tmp/mods.log"
 		else
-			echo -e "$2" 1>>$basedir/tmp/mods.log
+			echo -e "$2" >>"$basedir/tmp/mods.log"
 		fi
 	else
 		if [ ! "$1" == "sl" ]; then
@@ -57,33 +56,39 @@ function write_output {
 
 function unload_mod {
 	local function_to_reset="$1"
-	if [ ! -z "$2" ]; then
+
+	if [[ ! -z "$2" ]]; then
 		local function="$2"
 	fi
-	echo '#!/bin/bash' 1>tmp/func_reset.bash
-	if [ ! -e "$basedir/mods/mod_$function_to_reset.bash" ]; then
+
+	# Check to make sure the function we're trying to unload exists first.
+	if [[ ! -e "$basedir/mods/mod_$function_to_reset.bash" ]]; then
 		error "$function_to_reset module not found."
 		return
 	fi
-	for mod in $(cat $basedir/mods/mod_$function_to_reset.bash)
-	do
+
+	echo '#!/usr/bin/env bash' >tmp/func_reset.bash
+
+	for mod in $(cat "$basedir/mods/mod_$function_to_reset.bash"); do
 		if [ "$tmp" == "1" ]; then
 			if [ ! "$mod" == "|" ]; then
-				if [ "$mod" == "$function_to_reset" ]; then
-					echo "function $mod {" 1>>$basedir/tmp/func_reset.bash
-					echo "	echo 'DERP' 1>/dev/null" 1>>$basedir/tmp/func_reset.bash
-					echo "}" 1>>tmp/func_reset.bash
-					source tmp/func_reset.bash
-				elif [ "$mod" == "$function" ]; then
-					echo "function $mod {" 1>>$basedir/tmp/func_reset.bash
-					echo "	echo 'Vinyl is best Pony.' 1>/dev/null" 1>>$basedir/tmp/func_reset.bash
-					echo "}" 1>>$basedir/tmp/func_reset.bash
-					source $basedir/tmp/func_reset.bash
-				else
-					echo "[unload_mod] $mod not equal to $function_to_reset or $function." 1>>$basedir/tmp/mods.log
+			
+				# Skip it if it's not a function we're looking for.
+				if [[ "$mod" != "$function_to_reset" ]] && [[ "$mod" != "$function" ]]; then
+					echo "[unload_mod] $mod not equal to $function_to_reset or $function." >> "$basedir/tmp/mods.log"
+					continue
 				fi
+
+				{
+					echo "$mod() {"
+					echo "	echo 'Vinyl is best Pony.' 1>/dev/null"
+					echo "}" 
+				} >> "$basedir/tmp/func_reset.bash"
+
+				source "$basedir/tmp/func_reset.bash"
 			fi
 		fi
+
 		if [ "$mod" == "function" ]; then
 			export tmp=1
 		else
@@ -94,28 +99,30 @@ function unload_mod {
 
 function depends {
 	local mod_depended="$1"
-	if [ ! -e "$basedir/mod/$1.bash" ]; then
-		echo "[depends] Dependency not met: $mod_depended. Check modules." 1>>$basedir/tmp/mods.log
+	if [[ ! -e "$basedir/mod/$1.bash" ]]; then
+		echo "[depends] Dependency not met: $mod_depended. Check modules." >> "$basedir/tmp/mods.log"
 		echo "ERR: Dependency not met: $mod_depended. Check modules."
 		return 1
 	else
-		local tmp=$(cat $basedir/tmp/mods.log | grep "\[depends\] Dependency $mod_depended was met.")
-		if [ ! "$tmp" == "[depends] Dependency $mod_depended was met." ]; then
-			echo "[depends] Dependency $mod_depended was met." 1>>$basedir/tmp/mods.log
+		local tmp=$(grep "\\[depends\\] Dependency $mod_depended was met." "$basedir/tmp/mods.log")
+		if [[ -z "$tmp" ]]; then
+			echo "[depends] Dependency $mod_depended was met." >> "$basedir/tmp/mods.log"
 		fi
 	fi
 }
 
 function change_ansi {
-	if [ "$(echo $1 | tr [:upper:] [:lower:])" == "on" ]; then
-		echo "on" > $basedir/config/ansi.txt
-	elif [ "$(echo $1 | tr [:upper:] [:lower:])" == "off" ]; then
-		echo "off" > $basedir/config/ansi.txt
+	local choice=$(tr '[:upper:]' '[:lower:]' <<<"$1")
+
+	if [ "$choice" == "on" ]; then
+		echo "on" > "$basedir/config/ansi.txt"
+	elif [ "$choice" == "off" ]; then
+		echo "off" > "$basedir/config/ansi.txt"
 	else
 		cecho "Input Not Recognized." red && slow_return_menu
 	fi
 
-	cecho "ANSI is now: $ansi_on_or_off" cyan
+	cecho "ANSI is now: $choice" cyan
 }
 
 
@@ -123,7 +130,7 @@ function change_ansi {
 ## GAME RELATED FUNCTIONS
 function cecho {
 	## ANSI SUPPORT.
-	local tmp="$(cat $basedir/config/ansi.txt)"
+	local tmp="$(cat "$basedir/config/ansi.txt")"
 	if [ "$tmp" == "on" ]; then
 		cecho_src "$1" "$2"
 	else
@@ -132,7 +139,8 @@ function cecho {
 }
 
 function prompt {
-	local username="$(cat $basedir/db/username.txt)"
+	load_attributes
+
 	export choice=""
 	export choice_l=""
 
@@ -142,7 +150,7 @@ function prompt {
 	# load the level into the buffer.
 	if [[ ! "$1" == "" ]] && [[ ! "$1" == "return" ]]; then
 		# load a level
-		source $basedir/content/loaded/levels/$1 !>/dev/null || erorr_exit "Err: Failed to load level: '$level'."
+		source "$basedir/content/loaded/levels/$1" 1>/dev/null || erorr_exit "Err: Failed to load level: '$level'."
 		$1
 	fi;
 
@@ -150,9 +158,9 @@ function prompt {
 	draw_prompt
 
 
-	export a1="$(echo $choice | awk '{ print $1 }')"
-	export a2="$(echo $choice | awk '{ print $2 }')"
-	export a3="$(echo $choice | awk '{ print $3 }')"
+	export a1=$(awk '{ print $1 }' <<<"$choice")
+	export a2=$(awk '{ print $2 }' <<<"$choice")
+	export a3=$(awk '{ print $3 }' <<<"$choice")
 	if [ "$a1" == "exit" ]; then
 		# TODO: Clean exit
 		exit
@@ -208,8 +216,8 @@ function prompt {
 		fi
 	elif [ "$a1" == "get" ]; then
 		if [ "$a2" == "hp" ]; then
-			local username="$(cat $basedir/db/username.txt)"
-			send_output "$(cat $basedir/home/$username/hp.pwd)"
+			local username="$(cat "$basedir/db/username.txt")"
+			send_output "$(cat "$basedir/home/$username/hp.pwd")"
 		elif [ "$a2" == "xp" ]; then
 			send_output "$xp"
 		elif [ "$a2" == "sp" ]; then
@@ -234,7 +242,7 @@ function prompt {
 			send_output "> $choice"
 		fi
 
-		echo "$choice" >> $basedir/home/$username/lastinput.txt
+		echo "$choice" >> "$basedir/home/$username/lastinput.txt"
 		return
 	fi
 
@@ -248,11 +256,11 @@ function prompt {
 
 # get the user's last input
 function get_input {
-	local input=$(cat $basedir/home/$username/lastinput.txt)
-	local lowercase_input="$(echo ${input,,} | tr -d '\n')"
+	local input=$(cat "$basedir/home/$username/lastinput.txt")
+	local lowercase_input="$(tr -d '\n' <<<"${input,,}")"
 
 	echo "${lowercase_input/ /}"
-	echo "" > $basedir/home/$username/lastinput.txt
+	echo "" > "$basedir/home/$username/lastinput.txt"
 }
 
 ## DIALOG MAPPING
@@ -266,7 +274,7 @@ function player_says {
 }
 
 function description {
-	send_output "\033[3m$*\033[0m"
+	send_output "\\033[3m$*\\033[0m"
 	send_output ""
 }
 
@@ -277,8 +285,8 @@ function error_exit {
 
 function slow {
 	## Makes text read-able. Can be Adjusted.
-	export speed="$(cat $basedir/config/text_speed.txt)"
-	sleep $speed
+	export speed="$(cat "$basedir/config/text_speed.txt")"
+	sleep "$speed"
 }
 
 function secho {
@@ -286,41 +294,45 @@ function secho {
 	send_output "$1" && slow
 }
 
+# Load things like sp and etc
+function load_attributes {
+	for file in "$basedir/db/"*.txt; do
+		real_name=$(sed 's/$\.txt//' <<<"$file")
+		declare "$real_name"=$(cat "$basedir/db/$file")
+	done
+}
+
+
+# USAGE: level [level] [xp] [ig_level]
 function level {
 	clear
-	########################################################
-	## USAGE: level [level] [xp] [ig_level]
-	##
-	cecho "Loading Level \c" cyan && cecho "$1\c" magenta && cecho "...\c" cyan
-	_read rrpg_main "$(cat $basedir/db/username.txt)" > /dev/null
 
-	export sp="$(cat $basedir/db/sp.txt)"
-	export l="$(cat $basedir/db/level.txt)"
-	export xp="$(cat $basedir/db/xp.txt)"
-	export username="$(cat $basedir/db/username.txt)"
-	export gender="$(cat $basedir/db/gender.txt)"
-	export class="$(cat $basedir/db/class.txt)"
-	export difficulty="$(cat $basedir/home/$username/diff.pwd)"
-	export ig_level="$(cat $basedir/db/ig_level.txt)"
+	cecho "Loading Level \\c" cyan && cecho "$1\\c" magenta && cecho "...\\c" cyan
+
+	load_attributes
+	_read rrpg_main "$username" > /dev/null
+	load_attributes # They may have changed.
+
+	export difficulty=$(cat "$basedir/home/$username/diff.pwd")
 
 	if [ "$2" -gt "$xp" ]; then
 		export xp="$2"
 	elif [ "$3" -gt "$ig_level" ]; then
 		export ig_level="$3"
 	elif [ "$2" -lt "$xp" ]; then
-		export xp "$2"
+		export xp="$2"
 	elif [ "$3" -lt "$ig_level" ]; then
 		### Just incase you lose a level somehow.
 		export ig_level="$ig_level"
 	fi
 	## Check if able to level up.
-	bash $basedir/content/rrpg_level.bash "$difficulty" "$l" "$xp" 2> $basedir/tmp/errors
+	bash "$basedir/content/rrpg_level.bash" "$difficulty" "$level" "$xp" 2> "$basedir/tmp/errors"
 
 	## REASSIGN SP, SINCE LEVEL COULD'VE MODFIYED IT.
-	export sp="$(cat $basedir/db/sp.txt)"
+	export sp=$(cat "$basedir/db/sp.txt")
 
 	## Write Data.
-	_write $username $1 $xp $sp $class $gender $ig_level rrpg_main  > /dev/null
+	_write "$username" $1 $xp "$sp" "$class" "$gender" "$ig_level" rrpg_main  > /dev/null
 
 	cecho "OK" green
 	sleep 1 ## Wait since it loads damn to fast.
@@ -334,12 +346,9 @@ function mask_input {
 
 function open {
 	## SETS GAME VARIABLES.
-	export xp="$(cat $basedir/db/xp.txt)"
-	export sp="$(cat $basedir/db/sp.txt)"
-	export lvl="$(cat $basedir/db/level.txt)"
-	export username="$(cat $basedir/db/username.txt)"
-	export hp="$(cat $basedir/home/$username/hp.pwd)"
-	export ig_level="$(cat $basedir/db/ig_level.txt)"
+	load_attributes
+	export lvl="$level" #compat
+	export hp=$(cat "$basedir/home/$username/hp.pwd")
 }
 
 # Called whenever we first enter the game.

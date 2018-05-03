@@ -1,11 +1,11 @@
 #!/bin/bash
 # MOD_MANIFEST: rrpg_manifest
 # MOD_NAME: mod_cfg
-# MOD_AUTHOR: RainbowDashDC
+# MOD_AUTHOR: Jared Allard <jaredallard@outlook.com>
 # MOD_VERSION: 1.0-dev
 # MOD_DESC: Uses classic cfg system "name=value". Redesigned from (unpublished) BTP.
 # MOD_UPDATE_LINK: http://rainbowdashdc.github.io/rrpg/mod_cfg.txt
-# MOD_UPDATE_TYPE: TXT
+# MOD_UPDATE_TYPE: MANUAL
 ##########################
 export enabled="yes"    #
 ##########################
@@ -15,35 +15,29 @@ if [ ! "$enabled" == "yes" ]; then
 fi
 
 function parse_cfg {
-	## $1 = Config File.
-	## $2 = Regex. (Is set as regex name.)
-	if [ "$1" == "" ]; then
-		error "no config file specified."
+	local file="$1"
+	local name="$2"
+
+	if [[ ! -e "$file" ]]; then
+		error "File not found. ($file)"
 		return
-	elif [ ! -e "$1" ]; then
-		error "config file not found."
-		return
-	fi
-	if [ "$2" == "" ]; then
-		error "no regex value specified."
-		return
-	fi
-	if [ ! "$3" == "--no-manifest" ]; then
-		if [ ! "$(head -n1 $1)" == "#RRPG_MANIFEST" ]; then
-			error "expecting 'RRPG_MANIFEST' since line #1"
-			return
-		fi
 	fi
 
-	if [ -e "$basedir/tmp/parse" ]; then
-			rm -rf "$basedor/tmp/parse"
+	if [[ -z "$name" ]]; then 
+		error "Missing param name."
+		return;
 	fi
-	cat $1 | grep -E "^$2=" | awk -F "=" '{ print $2 }' > $basedir/tmp/parse
-	if [ "$(cat $basedir/tmp/parse)" == "" ]; then
-			error "value not found"
+
+	local value=$(grep -E "^$2=" "$1" | sed "s/^$2=//")
+
+	if [[ -z "${value}" ]]; then
+		error "value not found"
+		return
 	fi
-	export $2=$(cat $basedir/tmp/parse)
-	echo "[parse_cfg] $2 was set from $1" 1>>$basedir/tmp/mods.log
+
+	echo "[parse_cfg] $2 was set from $1" >> "$basedir/tmp/mods.log"
+	declare -x "$name"="$value"
+	echo "[parse_cfg] ${!name}" >> "$basedir/tmp/mods.log"
 }
 
 if [ "$1" == "mod_loader" ]; then

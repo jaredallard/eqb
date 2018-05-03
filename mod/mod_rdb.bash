@@ -2,7 +2,7 @@
 #
 # MOD_MANIFEST: rrpg_manifest
 # MOD_NAME: mod_rdb
-# MOD_AUTHOR: RainbowDashDC
+# MOD_AUTHOR: Jared Allard <jaredallard@outlook.com>
 # MOD_VERSION: 1.3.4-dev
 # MOD_DESC: Text-Based database system for RRPG.
 # MOD_UPDATE_LINK: http://rainbowdashdc.github.io/rrpg/mod_rdb.txt
@@ -61,39 +61,21 @@ function _read {
 }
 
 function _write {
-	if [ "$1" == "" ]; then
-		echo "USAGE: _write [username] [level] [xp] [skill_points] [class] [gender] [diff] [db]"
-		return
-	elif [ "$2" == "" ]; then
-		echo "USAGE: _write [username] [level] [xp] [skill_points] [class] [gender] [diff] [db]"
-		return
-	elif [ "$3" == "" ]; then
-		echo "USAGE: _write [username] [level] [xp] [skill_points] [class] [gender] [diff] [db]"
-		return
-	elif [ "$4" == "" ]; then
-		echo "USAGE: _write [username] [level] [xp] [skill_points] [class] [gender] [diff] [db]"
-		return
-	elif [ "$5" == "" ]; then
-		echo "USAGE: _write [username] [level] [xp] [skill_points] [class] [gender] [diff] [db]"
-		return
-	elif [ "$6" == "" ]; then
-		echo "USAGE: _write [username] [level] [xp] [skill_points] [class] [gender] [diff] [db]"
-		return
-	elif [ "$7" == "" ]; then
+	if [[ -z "$7" ]]; then
 		echo "USAGE: _write [username] [level] [xp] [skill_points] [class] [gender] [diff] [db]"
 		return
 	fi
+
 	echo -n "Writing to Database..."
-	cat $basedir/db/$8.rdb | grep -n "$1" | awk -F ":" '{ print $1 }' > $basedir/tmp/ln
-	export ln="$(cat $basedir/tmp/ln)"
-	perl -pe "s/.*/$1 $2 $3 $4 $5 $6 $7/ if $. == $ln " > $basedir/tmp/$8.tmp < $basedir/db/$8.rdb
-	mv $basedir/tmp/$8.tmp $basedir/db/$8.rdb
+	local ln=$(grep -n "$1" "$basedir/db/$8.rdb" | awk -F ":" '{ print $1 }')
+	perl -pe "s/.*/$1 $2 $3 $4 $5 $6 $7/ if $. == $ln " > "$basedir/tmp/$8.tmp" < "$basedir/db/$8.rdb"
+	mv "$basedir/tmp/$8.tmp" "$basedir/db/$8.rdb"
 	echo "............................[ OK ]"
 }
 
 function _destroy {
 	if [ "$1" == "" ]; then
-		echo USAGE: _destroy [database_name]
+		echo "USAGE: _destroy [database_name]"
 		return
 	fi
 	echo -n "Removing Datbase..."
@@ -103,7 +85,7 @@ function _destroy {
 
 function _backup {
 	if [ "$1" == "" ]; then
-		echo USAGE: _backup [database_name]
+		echo "USAGE: _backup [database_name]"
 		return
 	fi
 	echo -n "Backing up Database..."
@@ -113,7 +95,7 @@ function _backup {
 
 function _restore {
 	if [ "$1" == "" ]; then
-		echo USAGE: _restore [database_name]
+		echo "USAGE: _restore [database_name]"
 		return
 	fi
 	echo -n "Restoring Database..."

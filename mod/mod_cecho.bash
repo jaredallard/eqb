@@ -2,7 +2,7 @@
 #
 # MOD_MANIFEST: rrpg_manifest
 # MOD_NAME: mod_cecho
-# MOD_AUTHOR: RainbowDashDC
+# MOD_AUTHOR: Jared Allard <jaredallard@outlook.com>
 # MOD_DESC: MOD-PACKED version of RRPG_COLOR. Taken from BTP.
 # MOD_VERSION: 1.2-dev
 # MOD_UPDATE_TYPE: MANUAL

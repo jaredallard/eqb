@@ -1,11 +1,12 @@
 #!/bin/bash
 # MOD_MANIFEST: rrpg_manifest
 # MOD_NAME: mod_xparse
-# MOD_AUTHOR: RainbowDashDC
+# MOD_AUTHOR: Jared Allard <jaredallard@outlook.com>
+# DATE: Late 2014
 # MOD_VERSION: 1.0.2
 # MOD_CHANGELOG:
 # 	V1.0.1 Initial Release.
-#	V1.0.2 Fixed issues with spaces in values for <head>value</footer>. Same-line for <head blah=""> is working, but spaces in val break it.
+#	  V1.0.2 Fixed issues with spaces in values for <head>value</footer>. Same-line for <head blah=""> is working, but spaces in val break it.
 # MOD_DESC: XParse, a bash based XML parser.
 # MOD_UPDATE_TYPE: MANUAL
 ##########################
@@ -17,7 +18,6 @@ if [ ! "$enabled" == "yes" ]; then
 fi
 
 function parse_xml { ## XML Parser.
-	## Parser written by RainbowDashDC.
 	## (C) 2013-Present RDashINC.
 	## GNUGPLV3
 	## Wrap in functions for locals. -- Was original reason, now for module-based packing.
@@ -229,7 +229,7 @@ function parse_xml { ## XML Parser.
 			local ver_def=0
 		fi
 		if [ $sxml == 2 ]; then
-			debug "Forced too use <header></header>."
+			debug "Forced to use <header></header>."
 			local wtf_moment=1
 		fi
 		local sxml=0
