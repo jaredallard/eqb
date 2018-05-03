@@ -12,9 +12,9 @@ export RRPG_PROMPT="> "
 export RRPG_HEADER="eqb"
 export RRPG_HEADER_2="v1.2"
 
-export Invert="\033[7m"
-export Reset="\033[0m"
-export Bold="\033[1m"
+export Invert='\033[7m'
+export Reset='\033[0m'
+export Bold='\033[1m'
 
 declare -a line
 
@@ -31,7 +31,8 @@ draw_header() {
 	echo -ne "${Bold}$RRPG_HEADER"
 
 	# set version spot
-	tput cup 0 $(($(($cols-$SIDEBAR_LENGTH))-${#RRPG_HEADER_2}))
+	local HEADER_2_LENGTH=${#RRPG_HEADER_2}
+	tput cup 0 $(($((cols-SIDEBAR_LENGTH))-HEADER_2_LENGTH))
 	echo -ne "${Bold}$RRPG_HEADER_2${Reset}"
 }
 
@@ -62,18 +63,18 @@ draw_from_to() {
 center_between_pos() {
 	local y=$1
 	local from_x=$2
-	local too_x=$3
+	local to_x=$3
 	local text=$4
 
 	# calculate distance between two points
-	local distance=$(($too_x-$from_x))
+	local distance=$((to_x-from_x))
 	local string_length=${#text}
 
 	# subtract total distance by length of the string, then divide by two for close
-	local padding_left=$(($distance-$string_length))
-	local padding=$(($padding_left/2))
+	local padding_left=$((distance-string_length))
+	local padding=$((padding_left/2))
 
-	tput cup $y $(($from_x+$padding))
+	tput cup $y $((from_x+padding))
 	echo -ne "$text"
 }
 
@@ -96,13 +97,13 @@ print_chars() {
 		return
 	fi
 
-	for a in `seq $2`; do echo -ne "$1"; done
+	for a in $(seq "$2"); do echo -ne "$1"; done
 }
 
 draw_prompt() {
-	local cols=`tput cols`
-	local lines=`tput lines`
-	local prompt_y=$(($lines-4))
+	local cols=$(tput cols)
+	local lines=$(tput lines)
+	local prompt_y=$((lines-4))
 
 	to_bottom
 	tput cuu 4
@@ -110,10 +111,11 @@ draw_prompt() {
 	tput civis
 
 	local i=0
-	local stop_clear=$(($cols-$(($SIDEBAR_LENGTH+${#RRPG_PROMPT}))))
+	local PROMPT_LENGTH=${#RRPG_PROMPT}
+	local stop_clear=$((cols-$((SIDEBAR_LENGTH+PROMPT_LENGTH))))
 	until [[ $i == $stop_clear ]]; do
 		echo -ne " "
-		let i=$i+1
+		i=$((i+1))
 	done
 
 	history -n
@@ -122,7 +124,7 @@ draw_prompt() {
 	tput cnorm
 
 	if [ ! "$1" == "--no-read" ]; then
-		read -ep "${RRPG_PROMPT}" choice
+		read -rep "${RRPG_PROMPT}" choice
 
 		 # save the choice
 		export choice=$choice
@@ -149,27 +151,26 @@ to_top() {
 
 clear_lines() {
 	local line_number=$1
-	local lines=`tput lines`
-	local cols=`tput cols`
+	local lines=$(tput lines)
+	local cols=$(tput cols)
 
 	local x=0
-	until [ $x == $line_number ]
-	do
+	until [[ $x == $line_number ]]; do
 		local n=0
 		local y=0
 
-		let x=$x+1
+		x=$((x+1))
 
 		# Move up a cert amount of lines, first save cursor pos (bottom)
 		tput sc
 		tput cuu $x
 
 
-		while [ $n -lt $cols ]
-		do
+		while [[ $n -lt $cols ]]; do
 			echo -n ' '
-			let n=$n+1
+			n=$((n+1))
 		done
+
 		tput rc
 	done
 
@@ -177,39 +178,39 @@ clear_lines() {
 }
 
 echo_to_end() {
-	local lines=`tput lines`
+	local lines=$(tput lines)
 	local n=0
+	local end=$2
 	local v=""
 
-	if [[ -z "$2" ]]; then
-		local 2=0
+	if [[ -z "$end" ]]; then
+		local end=0
 	fi
 
-	while [[ $n -lt $(($cols-$2)) ]]; do
+	while [[ $n -lt $((cols-end)) ]]; do
 		local v="$v$1"
-		let n=$n+1
+		n=$((n+1))
 	done
 
-	echo -n $v
+	echo -n "$v"
 }
 
 echo_amount() {
 	local number=$2
 	local n=0
 	local v=""
-	while [ $n -lt $number ]
-	do
+	while [[ $n -lt $number ]]; do
 		local v="$v$1"
-		let n=$n+1
+		n=$((n+1))
 	done
 	echo -n "$v"
 }
 
 send_output() {
 	# Handles all output, as it should.
-
-	local lines=$((`tput lines`-8))
-	local cols=`tput cols`
+	local terminal_lines=$(tput lines)
+	local lines=$((terminal_lines-8))
+	local cols=$(tput cols)
 	local message=$1
 	local message_chars=${#message}
 	local num=0
@@ -227,12 +228,10 @@ send_output() {
 			# if $i is greater or equal to amount of colums
 			local n=1
 			if [[ $i -ge $cols ]]; then
-				local crw=$cols
-
 				# until $i is less than the amount of colums.
-				until [ $i -lt $cols ]; do
-					local cols=$(($cols+$cols))
-					let n=$n+1
+				until [[ $i -lt $cols ]]; do
+					local cols=$((cols+cols))
+					n=$((n+))
 
 					final="${final}${message:$i:1}"
 					line[$n]=${#final}
@@ -247,20 +246,20 @@ send_output() {
 
 	# Tracks scrolling of text
 	while :; do
-		let num=$num+1
+		num=$((num+1))
 		if [[ "${num}" == "$lines" ]]; then
 			to_top
 
 			local line_pos=2
-			until [[ $line_pos == $(($lines+3)) ]]; do
+			until [[ $line_pos == $((lines+3)) ]]; do
 				tput cup $line_pos 0
 
 				# clear line
-				local stop_clear=$(($cols-$SIDEBAR_LENGTH))
+				local stop_clear=$((cols-SIDEBAR_LENGTH))
 				local i=0
 				until [[ $i == $stop_clear ]]; do
 					echo -ne " "
-					let i=$i+1
+					i=$((i+1))
 				done
 
 				let line_pos=$line_pos+1
@@ -269,12 +268,12 @@ send_output() {
 			# simulate move up
 			to_top
 			tput cup 2 0
-			tail -n $(($lines-1)) ${LOGFILE}
+			tail -n $((lines-1)) "${LOGFILE}"
 
 			break
 		elif [[ "${line[$num]}" == "false" ]] || [[ -z "${line[$num]}" ]]; then
 			to_top
-			tput cud $(($num+1))
+			tput cud $((num+1))
 			break
 		fi
 	done
@@ -283,27 +282,27 @@ send_output() {
 
 	line[$num]=$message_chars
 	echo -e "$message"
-	echo -e "$message" >> ${LOGFILE}
+	echo -e "$message" >> "${LOGFILE}"
 }
 
 draw_box() {
-	local lines=`tput lines`
-	local cols=`tput cols`
+	local lines=$(tput lines)
+	local cols=$(tput cols)
 
 	to_bottom
 	tput cuu 2
 	echo_to_end "=" $SIDEBAR_LENGTH
 
 	# Section 2
-	tput cup $(($lines-2)) 0 && echo -n "="
-	tput cup $(($lines-2)) 2
-	echo -ne "Health: ${Green}$(cat $basedir/home/$username/hp.pwd)${NC} / XP: ${Cyan}$(cat $basedir/db/xp.txt)${NC}"
-	tput cup $(($lines-2)) $cols && echo -n "="
+	tput cup $((lines-2)) 0 && echo -n "="
+	tput cup $((lines-2)) 2
+	echo -ne "Health: ${Green}$(cat "$basedir/home/$username/hp.pwd")${NC} / XP: ${Cyan}$(cat "$basedir/db/xp.txt")${NC}"
+	tput cup $((lines-2)) "$cols" && echo -n "="
 
 	# Section 1
-	tput cup $(($lines-1)) 0 && echo -n "="
-	tput cup $(($lines-1)) 2
-	echo -ne "A: ${Red}$(cat $basedir/home/$username/attack.txt) ${NC}/ D: ${Blue}$(cat $basedir/home/$username/defense.txt)${NC}"
+	tput cup $((lines-1)) 0 && echo -n "="
+	tput cup $((lines-1)) 2
+	echo -ne "A: ${Red}$(cat "$basedir/home/$username/attack.txt") ${NC}/ D: ${Blue}$(cat "$basedir/home/$username/defense.txt")${NC}"
 
 	to_bottom
 
@@ -313,24 +312,24 @@ draw_box() {
 
 draw_sidebar() {
 	# sidebar is 10 chars from the RIGHT
-	local lines=`tput lines`
-	local cols=`tput cols`
-	local sidebar_border_left_pos=$(($cols-$SIDEBAR_LENGTH))
+	local lines=$(tput lines)
+	local cols=$(tput cols)
+	local sidebar_border_left_pos=$((cols-SIDEBAR_LENGTH))
 
 	# draw side border to the left.
 	local i=0
-	until [[ $i == $(($lines+1)) ]]; do
+	until [[ $i == $((lines+1)) ]]; do
 		echo -ne "|"
 		tput cup $i $sidebar_border_left_pos
-		let i=$i+1
+		i=$((i+1))
 	done
 
 	# draw inventory header
-	center_between_pos 0 $sidebar_border_left_pos $cols "Inventory"
+	center_between_pos 0 "$sidebar_border_left_pos" "$cols" "Inventory"
 
 	# plus 1 so we don't accidently draw on the border
-	draw_from_to 1 $(($sidebar_border_left_pos+1)) $cols "="
-	draw_from_to $(($lines-3)) $(($sidebar_border_left_pos+1)) $cols "="
+	draw_from_to 1 $((sidebar_border_left_pos+1)) "$cols" "="
+	draw_from_to $((lines-3)) $((sidebar_border_left_pos+1)) "$cols" "="
 }
 
 # Attempt to redraw the terminal.
@@ -346,7 +345,7 @@ draw_main() {
 	trap "restore_term" SIGWINCH
 
 	# RM cls file
-	rm -rf $basedir/tmp/cls
+	rm -rf "$basedir/tmp/cls"
 
 	# Load User history file.
 	if [[ ! -e $HISTFILE ]]; then

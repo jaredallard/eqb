@@ -16,13 +16,13 @@ get_item_amount() {
 	fi
 
 	local item=$1
-	local item=$(cat $basedir/home/$username/items.lst | grep -n "$item=" || echo err)
+	local item=$(grep -n "$item=" "$basedir/home/$username/items.lst" || echo err)
 	local item_number=${item##*=}
 
 	if [ "$item_number" == "err" ]; then
 		echo not_exist
 	else
-		echo $item_number
+		echo "$item_number"
 	fi
 }
 
@@ -33,7 +33,7 @@ has_item() {
 	fi
 
 	local item=$1
-	local call=$(get_item_amount $item)
+	local call=$(get_item_amount "$item")
 
 	if [ "$call" == "0" ]; then
 		echo false
@@ -59,8 +59,8 @@ add_item() {
 	fi
 
 	## Get Skill Line Number
-	cat $basedir/home/$username/items.lst | grep -n "$item=" | awk -F ":" '{ print $1 }' > $basedir/tmp/lnum
-	local lnum="$(cat $basedir/tmp/lnum)"
+	grep -n "$item=" "$basedir/home/$username/items.lst" | awk -F ":" '{ print $1 }' > "$basedir/tmp/lnum"
+	local lnum="$(cat "$basedir/tmp/lnum")"
 
 	if [ "$lnum" == "" ]; then
 		error "Item not found, try regenerating the item list."

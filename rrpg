@@ -16,7 +16,7 @@ function check_for_binary {
 	return
 }
 
-echo -ne "\033[8;${h};${w}t"
+echo -ne "\\033[8;${h};${w}t"
 
 if [[ "$1" == "--force-linux" ]]; then
 	export os_name=""
@@ -29,6 +29,8 @@ if [[ "$os_name" == "CYGWIN" ]]; then
 else
 	echo "Using a linux flavor or etc."
 	export os="Linux"
+
+	# shellcheck source=get_basedir
 	export basedir=$(source get_basedir)
 fi
 
@@ -41,17 +43,17 @@ echo "Config: ${CONFIG_DIR}"
 echo "Mods: ${MOD_DIR}"
 
 ## CHECK DIRECTORYS.
-if [ ! -e "$basedir/tmp" ]; then
-	mkdir $basedir/tmp
+if [ ! -d "$basedir/tmp" ]; then
+	mkdir "$basedir/tmp"
 fi
-if [ ! -e "$basedir/home" ]; then
-	mkdir $basedir/home
+if [ ! -d "$basedir/home" ]; then
+	mkdir "$basedir/home"
 fi
-if [ ! -e "$basedir/config" ]; then
-	mkdir $basedir/config
+if [ ! -d "$basedir/config" ]; then
+	mkdir "$basedir/config"
 fi
-if [ ! -e "$basedir/db" ]; then
-	mkdir $basedir/db
+if [ ! -d "$basedir/db" ]; then
+	mkdir "$basedir/db"
 fi
 if [ ! -e "$basedir/mod" ]; then
 	echo "ERR: No Modules. This will not work."
@@ -91,14 +93,13 @@ function rrpg_help {
 
 function get_args {
 	# Here's where ALLLL THE MUTHFUCKING COMMANDLINE ARGUMENTS ARE HANDLED. THAT'S RIGHT. ALL OF THEM.
-	for arg in $@
-	do
+	for arg in $@; do
 		if [ "$use_custom_content" == "true" ]; then
 			# needs to be ported
-			cecho "CAUTION: \c" red && cecho "Content Packs can be HARMFUL if reverse enginered." cyan
+			cecho "CAUTION: \\c" red && cecho "Content Packs can be HARMFUL if reverse enginered." cyan
 			cecho "DO NOT trust outside sources without looking at them. I am" cyan
 			cecho "not responsible for any damage done by a content pack." cyan
-			read -p "Press any key to continue."
+			read -rp "Press any key to continue."
 
 			if [ "$arg" == "" ]; then
 				echo "ERR: No Content Pack Specified."
@@ -123,16 +124,16 @@ function get_args {
 
 		# ANSI.
 		if [ "$arg" == "--ansi=off" ]; then
-			echo "off" > $basedir/config/ansi.txt
+			echo "off" > "$basedir/config/ansi.txt"
 			echo "ANSI turned: off."
 		elif [ "$arg" == "--ansi=on" ]; then
-			echo "on" > $basedir/config/ansi.txt
+			echo "on" > "$basedir/config/ansi.txt"
 			echo "ANSI turned: on."
 		fi
 
 		# Interactive Manual.
 		if [ "$arg" == "--man" ]; then
-			source ${ENGINE_DIR}/rrpg_man.bash
+			source "${ENGINE_DIR}/rrpg_man.bash"
 			exit
 		fi
 
@@ -145,21 +146,21 @@ function get_args {
 function init {
 	## Load Modules JIT.
 	## LOAD MODS TO ENABLE ANSI ECHO SUPPORT AND OTHER THINGS
-	source ${ENGINE_DIR}/rrpg_modloader.bash --verbose
+	source "${ENGINE_DIR}/rrpg_modloader.bash" --verbose
 
 	check_for_binary "unzip"
 	check_for_binary "perl -v"
 
 	if [ ! -e "$basedir/config/ansi.txt" ]; then
-		echo "on" > $basedir/config/ansi.txt
+		echo "on" > "$basedir/config/ansi.txt"
 	fi
 
 	if [ ! -e "$basedir/config/text_speed.txt" ]; then
-		echo "0.5" > $basedir/config/text_speed.txt
+		echo "0.5" > "$basedir/config/text_speed.txt"
 	fi
 
 	if [ ! -e "$basedir/config/content.txt" ]; then
-		echo "default.zip" > $basedir/config/content.txt
+		echo "default.zip" > "$basedir/config/content.txt"
 	fi
 
 	## Pass Arguments to arguments function.
@@ -168,25 +169,20 @@ function init {
 	## Load Content Pack.
 	depends mod_cp
 	if [ "$cp_cust" == "" ]; then
-		load_cp "$(cat $basedir/config/content.txt)" || error_exit "ERR: Content Pack failed too load. [default] (This isn't normal.)"
+		load_cp "$(cat "$basedir/config/content.txt")" || error_exit "ERR: Content Pack failed too load. [default] (This isn't normal.)"
 	else
 		load_cp "$cp_cust" || error_exit "ERR: Content Pack failed too load. [$cp_cust]"
 	fi
-
-	# Generate Items List
-	source $ENGINE_DIR/rrpg_skill.bash --generate
-	source $ENGINE_DIR/rrpg_item.bash
-	gen_items
-	gen_equip
-	gen_attribs
 
 	# Load menus
 	source "$basedir/content/loaded/init/menus.bash"
 
 	## "Splash"
 	if [ -e "$basedir/content/loaded/init/splash.bash" ]; then
+
+		# shellcheck source=content/loaded/init/spash.bash
 		source "$basedir/content/loaded/init/splash.bash"
-		read -t 3 1>/dev/null 2>/dev/null
+		read -rt 3 1>/dev/null 2>/dev/null
 	fi
 
 	## Location to go to after "splash".
@@ -210,8 +206,8 @@ function menu {
 	cecho "5. Content Pack Information." green
 	cecho "6. Exit" red
 	echo ""
-	cecho "Selection: \c" cyan
-	read menu_choice
+	cecho 'Selection: \c' cyan
+	read -r menu_choice
 
 	# Check Input, and go to selection.
 	if [ ! "$menu_choice" == "" ]; then
@@ -226,9 +222,9 @@ function menu {
 		elif [ "$menu_choice" == "5" ]; then
 			content_pack_menu
 		elif [ "$menu_choice" == "6" ]; then
-			rm -rf $basedir/content/loaded
-			rm -rf $basedir/db/*.txt
-			rm -rf $basedir/tmp/*
+			rm -rf "$basedir/content/loaded"
+			rm -rf "$basedir/db/"*.txt
+			rm -rf "$basedir/tmp/"*
 			exit
 		fi
 		menu

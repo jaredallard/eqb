@@ -1,6 +1,6 @@
 #!/bin/bash
-# AUTHOR: RAINBOWDASHDC (@RAINDASHDC) (@2ROOT4YOU)
-# COPYRIGHT: RDASHINC (RDCoding) http://rdashinc.tk/
+# AUTHOR: Jared Allard <jaredallard@outlook.com>
+# COPYRIGHT: None
 # DESC: RRPG Content Loading Script.
 # DATE: SUNDAY, 6 JULY 2013.
 # NOTE: I code too much...
@@ -16,11 +16,14 @@ if [ "$1" == "" ]; then
 fi
 
 ## Load Modules
-source $basedir/engine/rrpg_modloader.bash 1>/dev/null
+# shellcheck source=engine/rrpg_modloader.bash
+source "$basedir/engine/rrpg_modloader.bash" 1>/dev/null
 
 function init_cp {
 	# Handles anything level based.
-	source $basedir/content/loaded/init/load.bash
+
+	# shellcheck source=content/loaded/init/load.bash
+	source "$basedir/content/loaded/init/load.bash"
 }
 
 

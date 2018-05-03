@@ -342,7 +342,18 @@ function open {
 	export ig_level="$(cat $basedir/db/ig_level.txt)"
 }
 
+# Called whenever we first enter the game.
 function enter_content {
+	# shellcheck source=engine/rrpg_skill.bash
+	source "$ENGINE_DIR/rrpg_skill.bash" --generate
+	
+	# shellcheck source=engine/rrpg_item.bash
+	source "$ENGINE_DIR/rrpg_item.bash"
+
+	gen_items
+	gen_equip
+	gen_attribs
+
 	$1
 }
 

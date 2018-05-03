@@ -20,7 +20,7 @@ function cecho_src {
 
 	# CMDLINE ARGUMENTS
 	if [ "$1" == "--list-colors" ]; then
-		cat $basedir/mod/mod_cecho.bash | grep -m 8 "#COLOR" | awk -F "=" '{ print $1 }' | awk '{ print $2 }' ### Don't wanna accidently show this... Heh.
+		cat "$basedir/mod/mod_cecho.bash" | grep -m 8 "#COLOR" | awk -F "=" '{ print $1 }' | awk '{ print $2 }' ### Don't wanna accidently show this... Heh.
 		exit
 	fi
 
