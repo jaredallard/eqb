@@ -289,6 +289,8 @@ draw_box() {
 	local lines=$(tput lines)
 	local cols=$(tput cols)
 
+	load_attributes
+
 	to_bottom
 	tput cuu 2
 	echo_to_end "=" $SIDEBAR_LENGTH
