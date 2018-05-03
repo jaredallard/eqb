@@ -297,8 +297,8 @@ function secho {
 # Load things like sp and etc
 function load_attributes {
 	for file in "$basedir/db/"*.txt; do
-		real_name=$(sed 's/$\.txt//' <<<"$file")
-		declare "$real_name"=$(cat "$basedir/db/$file")
+		real_name=$(basename "$file" ".txt")
+		declare "$real_name"=$(cat "$basedir/db/$real_name.txt")
 	done
 }
 
