@@ -138,6 +138,7 @@ function cecho {
 	fi
 }
 
+# shellcheck disable=SC2120
 function prompt {
 	load_attributes
 
@@ -150,7 +151,7 @@ function prompt {
 	# load the level into the buffer.
 	if [[ ! "$1" == "" ]] && [[ ! "$1" == "return" ]]; then
 		# load a level
-		source "$basedir/content/loaded/levels/$1" 1>/dev/null || erorr_exit "Err: Failed to load level: '$level'."
+		source "$basedir/content/loaded/levels/$1" 1>/dev/null || error_exit "Err: Failed to load level: '$level'."
 		$1
 	fi;
 
@@ -203,9 +204,11 @@ function prompt {
 			if [ "$a3" == "" ]; then
 				send_output "USAGE: set ansi [on/off]"
 			elif [ "$a3" == "on" ]; then
-				echo "on" > $basedir/config/ansi.txt
+				send_output "Coloring is now ON"
+				echo "on" > "$basedir/config/ansi.txt"
 			elif [ "$a3" == "off" ]; then
-				echo "off" > $basedir/config/ansi.txt
+				send_output "Coloring is now OFF"
+				echo "off" > "$basedir/config/ansi.txt"
 			else
 				send_output "USAGE: set ansi [on/off]"
 				send_output "E: Input was invaild."
@@ -362,6 +365,8 @@ function enter_content {
 	gen_items
 	gen_equip
 	gen_attribs
+
+	echo "$1"
 
 	$1
 }

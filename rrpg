@@ -12,8 +12,9 @@ export h=30
 export w=100
 
 function check_for_binary {
-	/usr/bin/env $1 1>/dev/null 2>/dev/null || error_exit "Binary '$1' not found"
-	return
+	if [[ -z "$(command -v "$1")" ]]; then
+ 		error_exit "Binary '$1' not found"
+	fi
 }
 
 echo -ne "\\033[8;${h};${w}t"
@@ -92,7 +93,7 @@ function rrpg_help {
 }
 
 function get_args {
-	# Here's where ALLLL THE MUTHFUCKING COMMANDLINE ARGUMENTS ARE HANDLED. THAT'S RIGHT. ALL OF THEM.
+	# Here's where ALLLL THE MUTHAFUCKING COMMANDLINE ARGUMENTS ARE HANDLED. THAT'S RIGHT. ALL OF THEM.
 	for arg in $@; do
 		if [ "$use_custom_content" == "true" ]; then
 			# needs to be ported
@@ -148,8 +149,8 @@ function init {
 	## LOAD MODS TO ENABLE ANSI ECHO SUPPORT AND OTHER THINGS
 	source "${ENGINE_DIR}/rrpg_modloader.bash" --verbose
 
-	check_for_binary "unzip"
-	check_for_binary "perl -v"
+	check_for_binary unzip
+	check_for_binary perl
 
 	if [ ! -e "$basedir/config/ansi.txt" ]; then
 		echo "on" > "$basedir/config/ansi.txt"

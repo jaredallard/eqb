@@ -67,7 +67,7 @@ add_item() {
 		return
 	fi
 
-	parse_cfg $basedir/home/$username/items.lst $item
+	parse_cfg "$basedir/home/$username/items.lst" "$item"
 
 	if [ "${!item}" == "" ]; then
 		error "WTF Moment, item not defined, but was found."
@@ -75,16 +75,16 @@ add_item() {
 	fi
 
 	local amount_orig=$amount
-	local amount=$((${!item}+$amount))
+	local amount=$((${!item}+amount))
 
 
 	## Replace Line Number with skill name: new value.
-	perl -pe "s/.*/$item=$amount/ if $. == $lnum " > $basedir/tmp/items.tmp < $basedir/home/$username/items.lst && ## Can't write to file being read.
-	mv $basedir/home/$username/items.lst $basedir/tmp/items.lst.bk ## Preserve File in TMP.
-	mv $basedir/tmp/items.tmp $basedir/home/$username/items.lst
+	perl -pe "s/.*/$item=$amount/ if $. == $lnum " > "$basedir/tmp/items.tmp" < "$basedir/home/$username/items.lst"
+	mv "$basedir/home/$username/items.lst" "$basedir/tmp/items.lst.bk" ## Preserve File in TMP.
+	mv "$basedir/tmp/items.tmp" "$basedir/home/$username/items.lst"
 
 	if [ ! "$amount_orig" -gt "1" ]; then
-		send_output "${White}** ${Green}`an_or_a ${item::1}`${White} '${Cyan}$item${White}' ${Green} was added to your inventory!${NC}"
+		send_output "${White}** ${Green}$(an_or_a "${item::1}")${White} '${Cyan}$item${White}' ${Green} was added to your inventory!${NC}"
 	else
 		send_output "${White}** ${Purple}$amount_orig${White} '${Cyan}${item}s${White}' ${Green} were added to your inventory! You Have: ${Purple}$amount${White}.${NC}"
 	fi
@@ -113,15 +113,15 @@ remove_item() {
 	fi
 
 	## Get Skill Line Number
-	cat $basedir/home/$username/items.lst | grep -n "$item=" | awk -F ":" '{ print $1 }' > $basedir/tmp/lnum
-	local lnum="$(cat $basedir/tmp/lnum)"
+	cat "$basedir/home/$username/items.lst" | grep -n "$item=" | awk -F ":" '{ print $1 }' > "$basedir/tmp/lnum"
+	local lnum="$(cat "$basedir/tmp/lnum")"
 
 	if [ "$lnum" == "" ]; then
 		error "Item not found, try regenerating the item list."
 		return
 	fi
 
-	parse_cfg $basedir/home/$username/items.lst $item
+	parse_cfg "$basedir/home/$username/items.lst" "$item"
 
 	if [ "${!item}" == "" ]; then
 		error "WTF Moment, item not defined, but was found."
@@ -135,11 +135,11 @@ remove_item() {
 	local amount=$((${!item}-$amount))
 
 	## Replace Line Number with skill name: new value.
-	perl -pe "s/.*/$item=$amount/ if $. == $lnum " > $basedir/tmp/items.tmp < $basedir/home/$username/items.lst && ## Can't write to file being read.
-	mv $basedir/home/$username/items.lst $basedir/tmp/items.lst.bk ## Preserve File in TMP.
-	mv $basedir/tmp/items.tmp $basedir/home/$username/items.lst
+	perl -pe "s/.*/$item=$amount/ if $. == $lnum " > "$basedir/tmp/items.tmp" < "$basedir/home/$username/items.lst"
+	mv "$basedir/home/$username/items.lst" "$basedir/tmp/items.lst.bk" ## Preserve File in TMP.
+	mv "$basedir/tmp/items.tmp" "$basedir/home/$username/items.lst"
 	if [ ! "$amount_orig" -gt "1" ]; then
-		echo -e "${White}** ${Red}`an_or_a ${item::1}`${White} '${Cyan}${item}${White}' ${Red} was removed from your inventory! ${Purple}$amount${White} ${Red}left!${NC}"
+		echo -e "${White}** ${Red}$(an_or_a "${item::1}")${White} '${Cyan}${item}${White}' ${Red} was removed from your inventory! ${Purple}$amount${White} ${Red}left!${NC}"
 	else
 		echo -e "${White}** ${Purple}$amount_orig${White} '${Cyan}${item}s${White}' ${Red} were removed from your inventory! ${Purple}$amount${White} ${Red}left!${NC}${NC}"
 	fi
@@ -158,7 +158,7 @@ gen_attribs() {
 	if [ "$1" == "--verbose" ]; then
 		echo ""
 	fi
-	for item in $(cat $basedir/home/$username/items.lst | tail -n+3 )
+	for item in $(tail -n+3 < "$basedir/home/$username/items.lst")
 	do
 		local item_name=${item%%=*}
 		local item_number=${item##*=}
@@ -187,8 +187,8 @@ gen_attribs() {
 					until [ $n == $item_number ]
 					do
 						local n=$(($n+1))
-						parse_cfg $item_path attack
-						parse_cfg $item_path defense
+						parse_cfg "$item_path" attack
+						parse_cfg "$item_path" defense
 
 						if [ "$1" == "--verbose" ]; then
 							echo " +${attack}A +${defense}D"
@@ -213,9 +213,9 @@ gen_attribs() {
 	if [ "$1" == "--verbose" ]; then
 		echo " You have $attack_final attack, and $defense_final defense."
 	fi
-	echo $attack_final > $basedir/home/$username/attack.txt
-	echo $defense_final > $basedir/home/$username/defense.txt
-	echo done
+	echo $attack_final > "$basedir/home/$username/attack.txt"
+	echo $defense_final > "$basedir/home/$username/defense.txt"
+	echo "done"
 }
 
 equip_item() {
@@ -244,8 +244,8 @@ equip_item() {
 		return
 	fi
 
-	parse_cfg $item_path weildable
-	parse_cfg $item_path equip
+	parse_cfg "$item_path" weildable
+	parse_cfg "$item_path" equip
 
 	if [ $weildable == 0 ]; then
 		error "Cannot be equipped!"
@@ -270,9 +270,9 @@ equip_item() {
 	fi
 
 	## Replace Line Number with skill name: new value.
-	perl -pe "s/.*/${position}=${item}/ if $. == $lnum " > $basedir/tmp/equip.tmp < $basedir/home/$username/equip.cfg && ## Can't write to file being read.
-	mv $basedir/home/$username/equip.cfg $basedir/tmp/equip.cfg.bk ## Preserve File in TMP.
-	mv $basedir/tmp/equip.tmp $basedir/home/$username/equip.cfg
+	perl -pe "s/.*/${position}=${item}/ if $. == $lnum " > "$basedir/tmp/equip.tmp" < "$basedir/home/$username/equip.cfg"
+	mv "$basedir/home/$username/equip.cfg" "$basedir/tmp/equip.cfg.bk"
+	mv "$basedir/tmp/equip.tmp" "$basedir/home/$username/equip.cfg"
 
 	echo -e "** ${Purple}${item}${Cyan} has been equiped to ${Purple}${position}${NC}"
 
@@ -293,18 +293,18 @@ unequip_item() {
 	local item=$2
 
 	if [ ! "$item" == "" ]; then
-		cat $basedir/home/$username/equip.cfg | grep -n "$position=$item" | awk -F ":" '{ print $1 }' > $basedir/tmp/lnum
+		grep -n "$position=$item" < "$basedir/home/$username/equip.cfg" | awk -F ":" '{ print $1 }' > "$basedir/tmp/lnum"
 		local lnum="$(cat $basedir/tmp/lnum)"
 	else
-		local pt=$(cat $basedir/home/$username/equip.cfg | grep -n "$position=")
-		local pv=$(cat $basedir/home/$username/equip.cfg | grep -n "$position=" | awk -F ':' '{ print $2 }' | awk -F '=' '{ print $2 }')
+		local pt=$(grep -n "$position=" < "$basedir/home/$username/equip.cfg")
+		local pv=$(grep -n "$position=" < "$basedir/home/$username/equip.cfg" | awk -F ':' '{ print $2 }' | awk -F '=' '{ print $2 }')
 		local item=$pv
 		if [ "$item" == "none" ]; then
 			error "Nothing equipped!"
 			return
 		fi
-		echo $pt | awk -F ':' '{ print $1 }' > $basedir/tmp/lnum
-		local lnum="$(cat $basedir/tmp/lnum)"
+		echo "$pt" | awk -F ':' '{ print $1 }' > "$basedir/tmp/lnum"
+		local lnum="$(cat "$basedir/tmp/lnum")"
 	fi
 
 
@@ -313,9 +313,10 @@ unequip_item() {
 		return
 	fi
 
-	perl -pe "s/.*/${position}=none/ if $. == $lnum " > $basedir/tmp/equip.tmp < $basedir/home/$username/equip.cfg && ## Can't write to file being read.
-	mv $basedir/home/$username/equip.cfg $basedir/tmp/equip.cfg.bk ## Preserve File in TMP.
-	mv $basedir/tmp/equip.tmp $basedir/home/$username/equip.cfg
+	# TODO: Stop repeating this same function like 200000 times
+	perl -pe "s/.*/${position}=none/ if $. == $lnum " > "$basedir/tmp/equip.tmp" < "$basedir/home/$username/equip.cfg"
+	mv "$basedir/home/$username/equip.cfg" "$basedir/tmp/equip.cfg.bk"
+	mv "$basedir/tmp/equip.tmp" "$basedir/home/$username/equip.cfg"
 
 	echo -e "** ${Purple}${item}${Cyan} has been unequipped from ${Purple}${position}${NC}"
 
@@ -328,15 +329,15 @@ equipped_item() {
 		return
 	fi
 
-	for item in $(cat $basedir/home/$username/equip.cfg | tail -n+3 )
+	for item in $(tail -n+3 < "$basedir/home/$username/equip.cfg")
 	do
 		local position=${item%%=*}
 		local item_equipped=${item##*=}
 
 		if [ "$position" == "$1" ]; then
-			echo $item_equipped
+			echo "$item_equipped"
 		elif [ "$1" == "all" ]; then
-			echo $position = $item_equipped
+			echo "$position = $item_equipped"
 		fi
 	done
 }
@@ -350,55 +351,55 @@ use_item() {
 
 	local item=$1
 
-	if [ "$(has_item ${item})" == "false" ]; then
+	if [ "$(has_item "$item")" == "false" ]; then
 		error "You don't have this item!"
 		return
 	fi
 
 	parse_cfg "$basedir/content/loaded/items/${item}.itm" eatable
-	if [ $eatable == 1 ]; then
+	if [ $eatable -eq 1 ]; then
 		parse_cfg "$basedir/content/loaded/items/${item}.itm" health
 		parse_cfg "$basedir/content/loaded/items/${item}.itm" XP
 		parse_cfg "$basedir/content/loaded/items/${item}.itm" SP
 
 		echo -ne "** ${Green}Used ${Purple}1 ${White}'${Cyan}${item}${White}'${Green}, You got; "
-		if [ ! $health == 0 ]; then
+		if [ $health -ne 0 ]; then
 			local hb=$(cat "$basedir/home/$username/hp.pwd")
-			local hn=$(($hb+$health))
+			local hn=$((hb+health))
 			echo $hn > $basedir/home/$username/hp.pwd
 			echo -ne "${Purple}$health${Green} HP, "
 		fi
 
-		if [ ! $XP == 0 ]; then
+		if [ $XP -ne 0 ]; then
 			local xb=$(cat "$basedir/db/xp.txt")
-			local xn=$(($xb+$XP))
-			echo $xn > $basedir/db/xp.txt
+			local xn=$((xb+XP))
+			echo $xn > "$basedir/db/xp.txt"
 			echo -ne "${Purple}$XP${Green} XP, "
 		fi
 
-		if [ ! $SP == 0 ]; then
+		if [ $SP -ne 0 ]; then
 			local sb=$(cat "$basedir/db/sp.txt")
-			local sn=$(($sb+$SP))
-			echo $sn > $basedir/db/sp.txt
+			local sn=$((sb+SP))
+			echo $sn > "$basedir/db/sp.txt"
 			echo -ne "${Purple}$SP${Green} SP, "
 		fi
 
 		echo -e "\b\b.${NC}"
 
 		# DB Variables
-		local sp="$(cat $basedir/db/sp.txt)"
-		local level="$(cat $basedir/db/level.txt)"
-		local xp="$(cat $basedir/db/xp.txt)"
-		local un="$(cat $basedir/db/username.txt)"
-		local sex="$(cat $basedir/db/gender.txt)"
-		local class="$(cat $basedir/db/class.txt)"
-		local diff="$(cat $basedir/home/$username/diff.pwd)"
-		local igl="$(cat $basedir/db/ig_level.txt)"
+		local sp="$(cat "$basedir/db/sp.txt")"
+		local level="$(cat "$basedir/db/level.txt")"
+		local xp="$(cat "$basedir/db/xp.txt")"
+		local un="$(cat "$basedir/db/username.txt")"
+		local sex="$(cat "$basedir/db/gender.txt")"
+		local class="$(cat "$basedir/db/class.txt")"
+		local diff="$(cat "$basedir/home/$username/diff.pwd")"
+		local igl="$(cat "$basedir/db/ig_level.txt")"
 
 		# Call DB re-write.
-		_write $username $level $xp $sp $class $sex $igl rrpg_main  > /dev/null
+		_write "$username" "$level" "$xp" "$sp" "$class" "$sex" "$igl" rrpg_main  > /dev/null
 
-		remove_item ${item} 1 > /dev/null
+		remove_item "${item}" 1 > /dev/null
 	else
 		echo "cannot be used!"
 	fi
@@ -413,7 +414,7 @@ is_equipped() {
 
 	local item=$1
 
-	cat $basedir/home/$username/equip.cfg | grep "=${item}$" 1>/dev/null
+	grep "=${item}$" < "$basedir/home/$username/equip.cfg" 1>/dev/null
 	if [ $? == 1 ]; then
 		echo false
 	else
@@ -430,27 +431,26 @@ get_equipped_item() {
 
 	local position=$1
 
-	parse_cfg "$basedir/home/$username/equip.cfg" ${position} || return 1
+	parse_cfg "$basedir/home/$username/equip.cfg" "${position}" || return 1
 
-	echo ${!position}
+	echo "${!position}"
 }
 
 gen_equip() {
-	if [ "$1" == "--verbose" ]; then
-		echo "no verbose available."
-	fi
 	open
 	echo -n "generating equipables..."
-	echo "#RRPG_MANIFEST" > $basedir/home/$username/equip.cfg
-	echo "# Created [$(date +%T)]" >> $basedir/home/$username/equip.cfg
-	echo "main_weapon=none" >> $basedir/home/$username/equip.cfg
-	echo "second_weapon=none" >> $basedir/home/$username/equip.cfg
-	echo "side=none" >> $basedir/home/$username/equip.cfg
-	echo "head=none" >> $basedir/home/$username/equip.cfg
-	echo "chest=none" >> $basedir/home/$username/equip.cfg
-	echo "back=none" >> $basedir/home/$username/equip.cfg
-	echo "hooves=none" >> $basedir/home/$username/equip.cfg
-	echo done
+	{
+		echo "#RRPG_MANIFEST"
+		echo "# Created [$(date +%T)]"
+		echo "main_weapon=none"
+		echo "second_weapon=none"
+		echo "side=none"
+		echo "head=none"
+		echo "chest=none"
+		echo "back=none"
+		echo "hooves=none"
+	} > "$basedir/home/$username/equip.cfg"
+	echo "done"
 }
 
 gen_items() {
@@ -460,17 +460,16 @@ gen_items() {
 		echo ""
 	fi
 
-	echo "#RRPG_MANIFEST" > $basedir/home/$username/items.lst
-	echo "# Created [$(date +%T)]" >> $basedir/home/$username/items.lst
-	for item in $( ls $basedir/content/loaded/items/*.itm )
+	echo -e "#RRPG_MANIFEST\n# Created [$(date +%T)]" > "$basedir/home/$username/items.lst"
+	for item in "$basedir/content/loaded/items/"*.itm 
 	do
-		parse_cfg $item start_amt
-		item="$(echo ${item##*/} | awk -F "." '{ print $1 }')"
+		parse_cfg "$item" start_amt
+		item="$(echo "${item##*/}" | awk -F "." '{ print $1 }')"
 
 		if [ "$1" == "--verbose" ]; then
 			echo "- adding $item \ $start_amt"
 		fi
 		echo "$item=$start_amt" >> $basedir/home/$username/items.lst
 	done
-	echo done
+	echo "done"
 }

@@ -23,7 +23,7 @@ export basedir=$(get_basedir)              #                   #
 ################################################################
 
 ## Temporary mod sourceing till this is sourced.
-source $basedir/content/rrpg_modloader.bash 1>/dev/null
+source "$basedir/content/rrpg_modloader.bash" 1>/dev/null
 
 function assign_var {
 	## Make sure that everything is assigned.
@@ -57,6 +57,7 @@ function check_difficulty {
 	fi
 }
 
+# shellcheck disable=SC2120
 function write_to_db {
 	local sp="$(cat $basedir/db/sp.txt)"
 	local l="$(cat $basedir/db/level.txt)"
@@ -67,7 +68,7 @@ function write_to_db {
 	local difficulty="$(cat $basedir/home/$username/diff.pwd)"
 	local ig_level="$(cat $basedir/db/ig_level.txt)"
 
-	_write $username $1 $xp $sp $class $gender $ig_level rrpg_main  > /dev/null
+	_write "$username" "$1" "$xp" "$sp" "$class" "$gender" "$ig_level" rrpg_main  > /dev/null
 }
 
 function check_xp {

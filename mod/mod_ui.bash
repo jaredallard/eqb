@@ -336,11 +336,16 @@ draw_sidebar() {
 
 # Attempt to redraw the terminal.
 restore_term() {
+	sleep 0.3
+  clear
+	to_top
+	tput cup 1 0
+	cat "$LOGFILE"
 	to_top
 	draw_header
 	draw_box
 	draw_sidebar
-	to_bottom
+	draw_prompt
 }
 
 draw_main() {
@@ -359,13 +364,7 @@ draw_main() {
 
 	# "Initialize" the display.
 	# i.e draw_main && prompt
-	clear
-
-	to_top
-	draw_header
-	draw_box
-	draw_sidebar
-	to_bottom
+	restore_term
 }
 
 echo "OK"

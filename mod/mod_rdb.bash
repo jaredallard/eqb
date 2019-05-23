@@ -3,7 +3,7 @@
 # MOD_MANIFEST: rrpg_manifest
 # MOD_NAME: mod_rdb
 # MOD_AUTHOR: Jared Allard <jaredallard@outlook.com>
-# MOD_VERSION: 1.3.4-dev
+# MOD_VERSION: 1.4.0
 # MOD_DESC: Text-Based database system for RRPG.
 # MOD_UPDATE_LINK: http://rainbowdashdc.github.io/rrpg/mod_rdb.txt
 # MOD_UPDATE_TYPE: MANUAL
@@ -30,33 +30,36 @@ function _init {
 
 function _init_new_user {
 	echo -n "Writing to Database..."
-	echo "$1 $2 $3 $4 $5 $6 $7" >> $basedir/db/$8.rdb
+	echo "$1 $2 $3 $4 $5 $6 $7" >> "$basedir/db/$8.rdb"
 	echo "............................[ OK ]"
 }
 
 function _clean {
 	echo -n "Cleaning Database..."
-	rm -rf $basedir/db/*.txt
+	rm -rf "$basedir/db/*.txt"
 	echo "..............................[ OK ]"
 }
+
 function _read {
 	# $1 == Database. $2 == Username.
 	if [ "$1" == "" ]; then
-		echo USAGE: _read [db] [username]
+		echo "USAGE: _read [db] [username]"
 		return
 	elif [ "$2" == "" ]; then
-		echo USAGE: _read [db] [username]
+		echo "USAGE: _read [db] [username]"
 		return
 	fi
 	echo -n "Reading/Extracting Database..."
-	rm $basedir/db/*.txt 2> /dev/null
-	cat "$basedir/db/$1.rdb" | grep "$2" | awk '{ print $1 }' > "$basedir/db/username.txt"
-	cat "$basedir/db/$1.rdb" | grep "$2" | awk '{ print $2 }' > "$basedir/db/level.txt"
-	cat "$basedir/db/$1.rdb" | grep "$2" | awk '{ print $3 }' > "$basedir/db/xp.txt"
-	cat "$basedir/db/$1.rdb" | grep "$2" | awk '{ print $4 }' > "$basedir/db/sp.txt"
-	cat "$basedir/db/$1.rdb" | grep "$2" | awk '{ print $5 }' > "$basedir/db/class.txt"
-	cat "$basedir/db/$1.rdb" | grep "$2" | awk '{ print $6 }' > "$basedir/db/gender.txt"
-	cat "$basedir/db/$1.rdb" | grep "$2" | awk '{ print $7 }' > "$basedir/db/ig_level.txt"
+	
+	declare -a files
+	files=("username" "level" "xp" "sp" "class" "gender" "ig_level")
+	rm "$basedir/db/"*.txt 2>/dev/null
+
+	index=0
+	for file in "${files[@]}"; do
+		index=$((index+1))
+		grep "$2" < "$basedir/db/$1.rdb" | awk "{ print \$$index }" > "$basedir/db/$file.txt"
+	done
 	echo "....................[ OK ]"
 }
 
@@ -105,7 +108,7 @@ function _restore {
 }
 
 function mod_rdb-help {
-	echo "RDC (C) 2013 RRPG-RDB"
+	echo "RDC (C) 2019 EQB"
 	echo ""
 	echo "DESC: RDB, DATABASE."
 	echo "USAGE: ./db/rdb.sh [function] [arguments]"
@@ -119,7 +122,7 @@ function mod_rdb-help {
 	echo "	_backup                      Backup Database."
 	echo "	_restore                     Restore Database."
 	echo ""
-	echo "Email Bug Reports to <allardj64@gmail.com>"
+	echo "Email Bug Reports to <jaredallard@outlook.com>"
 }
 
 if [ "$1" == "mod_loader" ]; then

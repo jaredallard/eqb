@@ -87,18 +87,18 @@ function write_skill {
 	local skill_value="$2"
 
 	## Get Skill Line Number
-	cat $basedir/home/$username/skills.pwd | grep -n "$skill_to_write" | awk -F ":" '{ print $1 }' > $basedir/tmp/lnum
+	grep -n "$skill_to_write" < "$basedir/home/$username/skills.pwd" | awk -F ":" '{ print $1 }' > $basedir/tmp/lnum
 	local lnum="$(cat ./tmp/lnum)"
 
 	## Replace Line Number with skill name: new value.
-	perl -pe "s/.*/$skill_to_write: $skill_value/ if $. == $lnum " > $basedir/tmp/skills.tmp < $basedir/home/$username/skills.pwd && ## Can't write to file being read.
-	mv $basedir/home/$username/skills.pwd $basedir/tmp/skills.pwd.bk ## Preserve File in TMP.
-	mv $basedir/tmp/skills.tmp $basedir/home/$username/skills.pwd ## Move New Skills File to DB.
+	perl -pe "s/.*/$skill_to_write: $skill_value/ if $. == $lnum " > "$basedir/tmp/skills.tmp" < "$basedir/home/$username/skills.pwd"
+	mv "$basedir/home/$username/skills.pwd" "$basedir/tmp/skills.pwd.bk"
+	mv "$basedir/tmp/skills.tmp" "$basedir/home/$username/skills.pwd"
 }
 
 function gen_menu {
-	local username="$(cat $basedir/db/username.txt)"
-	local SKILLS_FILE="$(cat $basedir/home/$username/skills.pwd | awk '{ print $1 }' )"
+	local username="$(cat "$basedir/db/username.txt")"
+	local SKILLS_FILE="$(cat "$basedir/home/$username/skills.pwd" | awk '{ print $1 }' )"
 	local num=0
 
 	## Generate Header.
@@ -110,7 +110,7 @@ function gen_menu {
 			echo -n "$skill "
 
 			## Print out on new-line skill value.
-			cat $basedir/home/$username/skills.pwd | grep "$skill" | awk '{ print $2 }'
+			grep "$skill" < "$basedir/home/$username/skills.pwd" | awk '{ print $2 }'
 		fi
 	done
 	echo "------------------------------------------------------"
@@ -121,7 +121,7 @@ function check_level {
 	## Will Check Level and Add New Skills (Allows Level-Based Skills).
 	if [ "$1" == "10" ]; then
 		## PLACEHOLDER
-		echo "Security: 0" >> $basedir/home/$username/skills.pwd
+		echo "Security: 0" >> "$basedir/home/$username/skills.pwd"
 	fi
 }
 
@@ -129,7 +129,7 @@ function write_sp {
 	local username="$(cat $basedir/db/username.txt)"
 	echo -n "Writing Skill Points..."
 	_write  "$username" "$(cat $basedir/db/level.txt)" "$(cat $basedir/db/xp.txt)" "$1" "$(cat $basedir/db/class.txt)" "$(cat $basedir/db/gender.txt)" "$(cat $basedir/home/$username/diff.pwd)" "rrpg_main" > $basedir/tmp/_write_skill
-	_read "rrpg_main" "$(cat $basedir/db/username.txt)" > $basedir/tmp/_read_skill
+	_read "rrpg_main" "$(cat $basedir/db/username.txt)" > "$basedir/tmp/_read_skill"
 	echo "OK"
 }
 
